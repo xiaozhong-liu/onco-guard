@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Onco-Guard AI - Home</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #060b14;
+      --surface: #0c1624;
+      --surface2: #111d30;
+      --border: #1b1d30;
+      --border2: #24345f;
+      --text: #e2e8f0;
+      --accent: #3b82f6;
+    }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'IBM Plex Sans', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      text-align: center;
+    }
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1.5rem;
+      color: #60a5fa;
+    }
+    p {
+      font-size: 1.2rem;
+      margin-bottom: 2.5rem;
+      max-width: 600px;
+      opacity: 0.9;
+    }
+    .links {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    a {
+      display: inline-block;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.2rem 2rem;
+      font-size: 1.3rem;
+      text-decoration: none;
+      color: var(--accent);
+      transition: all 0.25s ease;
+      width: 100%;
+      max-width: 400px;
+    }
+    a:hover {
+      background: var(--surface2);
+      border-color: var(--accent);
+      transform: translateY(-3px);
+      box-shadow: 0 10px 20px rgba(59, 130, 246, 0.15);
+    }
+  </style>
+</head>
+<body>
+  <h1>Onco-Guard AI</h1>
+  <p>Welcome to the architecture documentation. Choose a version below:</p>
+
+  <div class="links">
+    <a href="onco-guard-architecture.html">Architecture v1</a>
+    <a href="onco-guard-architecture-v2.html">Architecture v2 (Latest)</a>
+  </div>
+</body>
+</html>
