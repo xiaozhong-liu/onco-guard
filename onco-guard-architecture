@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Onco-Guard AI Architecture</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+  :root {
+    --bg: #050d1a;
+    --panel: #0a1628;
+    --panel2: #0f1f38;
+    --border: #1a3a5c;
+    --accent1: #00d4ff;
+    --accent2: #ff6b35;
+    --accent3: #7cff8b;
+    --accent4: #c084fc;
+    --text: #e2eaf5;
+    --muted: #6b8aaa;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding: 32px 24px;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    top: -200px; left: -200px;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(0,212,255,0.05) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    bottom: -200px; right: -200px;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(192,132,252,0.05) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  .logo {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--accent1);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    opacity: 0.8;
+  }
+
+  h1 {
+    font-size: clamp(22px, 4vw, 36px);
+    font-weight: 600;
+    letter-spacing: -0.5px;
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+
+  h1 span { color: var(--accent1); }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 300;
+  }
+
+  /* MAIN GRID */
+  .arch {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  /* INPUT LAYER */
+  .layer-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .input-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .sensor-card {
+    flex: 1;
+    min-width: 120px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-top: 2px solid var(--accent1);
+    border-radius: 8px;
+    padding: 14px 16px;
+    position: relative;
+    animation: pulse-border 3s ease-in-out infinite;
+  }
+
+  .sensor-card:nth-child(2) { animation-delay: 0.5s; }
+  .sensor-card:nth-child(3) { animation-delay: 1s; }
+  .sensor-card:nth-child(4) { animation-delay: 1.5s; }
+  .sensor-card:nth-child(5) { animation-delay: 2s; }
+
+  @keyframes pulse-border {
+    0%, 100% { border-top-color: var(--accent1); box-shadow: 0 0 0 rgba(0,212,255,0); }
+    50% { border-top-color: #80eaff; box-shadow: 0 0 12px rgba(0,212,255,0.15); }
+  }
+
+  .sensor-icon { font-size: 20px; margin-bottom: 6px; }
+  .sensor-name { font-size: 12px; font-weight: 600; color: var(--accent1); }
+  .sensor-desc { font-size: 11px; color: var(--muted); margin-top: 3px; }
+
+  /* FLOW ARROW */
+  .flow-arrow {
+    text-align: center;
+    color: var(--muted);
+    font-size: 20px;
+    line-height: 1;
+    position: relative;
+  }
+  .flow-arrow::before {
+    content: '';
+    display: block;
+    width: 2px;
+    height: 24px;
+    background: linear-gradient(to bottom, var(--border), var(--accent1));
+    margin: 0 auto 4px;
+    opacity: 0.6;
+  }
+
+  /* AIM BLOCKS */
+  .aim-block {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .aim-block::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+
+  .aim1::before { background: linear-gradient(90deg, var(--accent1), transparent); }
+  .aim2::before { background: linear-gradient(90deg, var(--accent2), transparent); }
+  .aim3::before { background: linear-gradient(90deg, var(--accent3), transparent); }
+
+  .aim-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+
+  .aim-badge {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    white-space: nowrap;
+    font-weight: 700;
+    letter-spacing: 1px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .aim1 .aim-badge { background: rgba(0,212,255,0.15); color: var(--accent1); border: 1px solid rgba(0,212,255,0.3); }
+  .aim2 .aim-badge { background: rgba(255,107,53,0.15); color: var(--accent2); border: 1px solid rgba(255,107,53,0.3); }
+  .aim3 .aim-badge { background: rgba(124,255,139,0.12); color: var(--accent3); border: 1px solid rgba(124,255,139,0.3); }
+
+  .aim-title { font-size: 15px; font-weight: 600; line-height: 1.3; }
+  .aim-subtitle { font-size: 12px; color: var(--muted); margin-top: 3px; }
+
+  .aim-body {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px;
+  }
+
+  .component {
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+  }
+
+  .comp-title {
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .comp-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .aim1 .comp-dot { background: var(--accent1); }
+  .aim2 .comp-dot { background: var(--accent2); }
+  .aim3 .comp-dot { background: var(--accent3); }
+
+  .comp-items { list-style: none; }
+  .comp-items li {
+    font-size: 11px;
+    color: var(--muted);
+    padding: 2px 0;
+    padding-left: 12px;
+    position: relative;
+  }
+  .comp-items li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: var(--border);
+  }
+
+  /* OUTPUT LAYER */
+  .output-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .output-card {
+    flex: 1;
+    min-width: 150px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-bottom: 2px solid;
+    border-radius: 8px;
+    padding: 14px 16px;
+    text-align: center;
+  }
+
+  .output-card:nth-child(1) { border-bottom-color: var(--accent3); }
+  .output-card:nth-child(2) { border-bottom-color: var(--accent1); }
+  .output-card:nth-child(3) { border-bottom-color: var(--accent4); }
+  .output-card:nth-child(4) { border-bottom-color: var(--accent2); }
+
+  .output-icon { font-size: 22px; margin-bottom: 6px; }
+  .output-title { font-size: 12px; font-weight: 600; margin-bottom: 4px; }
+  .output-desc { font-size: 11px; color: var(--muted); }
+
+  /* FEEDBACK LOOP */
+  .feedback-box {
+    background: rgba(192,132,252,0.05);
+    border: 1px dashed rgba(192,132,252,0.3);
+    border-radius: 8px;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .feedback-icon { font-size: 22px; flex-shrink: 0; }
+  .feedback-title { font-size: 13px; font-weight: 600; color: var(--accent4); margin-bottom: 3px; }
+  .feedback-desc { font-size: 11px; color: var(--muted); }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    .input-row, .output-row { flex-direction: column; }
+    .aim-body { grid-template-columns: 1fr; }
+  }
+
+  /* LEGEND */
+  .legend {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 8px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .legend-dot {
+    width: 10px; height: 3px;
+    border-radius: 2px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">System Architecture</div>
+  <h1>Onco-Guard <span>AI</span></h1>
+  <p class="subtitle">Trustworthy Collaborative Intelligence for 7×24 Oncology Trial Monitoring</p>
+</header>
+
+<div class="arch">
+
+  <!-- INPUT LAYER -->
+  <div>
+    <div class="layer-label">▸ Data Input Layer</div>
+    <div class="input-row">
+      <div class="sensor-card">
+        <div class="sensor-icon">⌚</div>
+        <div class="sensor-name">Wearable Sensors</div>
+        <div class="sensor-desc">HR · SpO₂ · Activity · Temp</div>
+      </div>
+      <div class="sensor-card">
+        <div class="sensor-icon">🏥</div>
+        <div class="sensor-name">EHR / EMR</div>
+        <div class="sensor-desc">医疗记录 · 用药史 · 手术记录</div>
+      </div>
+      <div class="sensor-card">
+        <div class="sensor-icon">🧪</div>
+        <div class="sensor-name">Trial Protocol</div>
+        <div class="sensor-desc">药物方案 · DLT标准 · CTCAE</div>
+      </div>
+      <div class="sensor-card">
+        <div class="sensor-icon">💬</div>
+        <div class="sensor-name">Patient ePRO</div>
+        <div class="sensor-desc">症状自报 · 生活质量量表</div>
+      </div>
+      <div class="sensor-card">
+        <div class="sensor-icon">📋</div>
+        <div class="sensor-name">Lab Results</div>
+        <div class="sensor-desc">血常规 · 生化 · 肿瘤标志物</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-arrow"></div>
+
+  <!-- AIM 1 -->
+  <div class="aim-block aim1">
+    <div class="aim-header">
+      <span class="aim-badge">AIM 1</span>
+      <div>
+        <div class="aim-title">Longitudinal Patient Context Modeling</div>
+        <div class="aim-subtitle">7×24 Continuous Toxicity Surveillance · Memory-Aware Diagnostic Engine</div>
+      </div>
+    </div>
+    <div class="aim-body">
+      <div class="component">
+        <div class="comp-title"><span class="comp-dot"></span>Short-Term Memory Module</div>
+        <ul class="comp-items">
+          <li>实时生理信号流处理</li>
+          <li>急性波动检测（Anomaly Detection）</li>
+          <li>多模态时序对齐</li>
+        </ul>
+      </div>
+      <div class="component">
+        <div class="comp-title"><span class="comp-dot"></span>Long-Term Memory Module</div>
+        <ul class="comp-items">
+          <li>EHR / 手术记录向量化存储</li>
+          <li>RAG（检索增强生成）</li>
+          <li>患者个体化基线建模</li>
+        </ul>
+      </div>
+      <div class="component">
+        <div class="comp-title"><span class="comp-dot"></span>Risk Assessment Engine</div>
+        <ul class="comp-items">
+          <li>DLT / CTCAE Grade 预测</li>
+          <li>感染 · 血栓 · CRS 早期信号</li>
+          <li>个性化实时风险评分</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-arrow"></div>
+
+  <!-- AIM 2 -->
+  <div class="aim-block aim2">
+    <div class="aim-header">
+      <span class="aim-badge">AIM 2</span>
+      <div>
+        <div class="aim-title">Adaptive Conversational Assessment Agent</div>
+        <div class="aim-subtitle">Protocol Adherence · Empathetic Symptom Elicitation · ePRO Collection</div>
+      </div>
+    </div>
+    <div class="aim-body">
+      <div class="component">
+        <div class="comp-title"><span class="comp-dot"></span>Trigger Logic</div>
+        <ul class="comp-items">
+          <li>Aim 1 风险阈值触发</li>
+          <li>方案时间节点触发</li>
+          <li>漏药 / 依从性检测触发</li>
+        </ul>
+      </div>
+      <div class="component">
+        <div class="comp-title"><span class="comp-dot"></span>LLM Dialogue Agent</div>
+        <ul class="comp-items">
+          <li>结构化症状问询（COA对齐）</li>
+          <li>健康素养自适应语言</li>
+          <li>多轮对话上下文管理</li>
+        </ul>
+      </div>
+      <div class="component">
+        <div class="comp-title"><span class="comp-dot"></span">Adherence Monitor</div>
+        <ul class="comp-items">
+          <li>口服用药提醒与确认</li>
+          <li>SAE上报延迟预警</li>
+          <li>ePRO数据质量校验</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-arrow"></div>
+
+  <!-- AIM 3 -->
+  <div class="aim-block aim3">
+    <div class="aim-header">
+      <span class="aim-badge">AIM 3</span>
+      <div>
+        <div class="aim-title">Collaborative Intelligence (CI) Framework</div>
+        <div class="aim-subtitle">Human-in-the-Loop · Alert Calibration · Clinician-AI Synergy</div>
+      </div>
+    </div>
+    <div class="aim-body">
+      <div class="component">
+        <div class="comp-title"><span class="comp-dot"></span>Alert Calibration Engine</div>
+        <ul class="comp-items">
+          <li>基于患者严重度的分级</li>
+          <li>医院资源约束感知</li>
+          <li>Alarm Fatigue 优化</li>
+        </ul>
+      </div>
+      <div class="component">
+        <div class="comp-title"><span class="comp-dot"></span>Clinician Dashboard</div>
+        <ul class="comp-items">
+          <li>AI生成报告可视化</li>
+          <li>One-click 批准 / 修改 / 拒绝</li>
+          <li>决策依据追踪（可解释AI）</li>
+        </ul>
+      </div>
+      <div class="component">
+        <div class="comp-title"><span class="comp-dot"></span>Escalation Workflow</div>
+        <ul class="comp-items">
+          <li>ESI / CTCAE 分级映射</li>
+          <li>Time-to-Intervention 度量</li>
+          <li>Dana-Farber 集成接口</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-arrow"></div>
+
+  <!-- OUTPUT LAYER -->
+  <div>
+    <div class="layer-label">▸ Clinical Output Layer</div>
+    <div class="output-row">
+      <div class="output-card">
+        <div class="output-icon">🚨</div>
+        <div class="output-title">SAE Alert</div>
+        <div class="output-desc">严重不良事件实时推送</div>
+      </div>
+      <div class="output-card">
+        <div class="output-icon">📊</div>
+        <div class="output-title">AI Report</div>
+        <div class="output-desc">结构化患者状态报告</div>
+      </div>
+      <div class="output-card">
+        <div class="output-icon">📱</div>
+        <div class="output-title">Patient Nudge</div>
+        <div class="output-desc">个性化依从性干预推送</div>
+      </div>
+      <div class="output-card">
+        <div class="output-icon">📈</div>
+        <div class="output-title">Trial Analytics</div>
+        <div class="output-desc">DLT检出率 · 方案执行分析</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FEEDBACK LOOP -->
+  <div class="feedback-box">
+    <div class="feedback-icon">🔁</div>
+    <div>
+      <div class="feedback-title">Continuous Learning Feedback Loop</div>
+      <div class="feedback-desc">临床医生的批准 / 修改决策 → 模型校准 · 警报阈值优化 · 个体化模型持续更新</div>
+    </div>
+  </div>
+
+  <!-- LEGEND -->
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:var(--accent1)"></div>Aim 1 · 生理监测</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--accent2)"></div>Aim 2 · 患者交互</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--accent3)"></div>Aim 3 · 临床协作</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--accent4); height:2px; border-top:1px dashed var(--accent4)"></div>反馈回路</div>
+  </div>
+
+</div>
+
+</body>
+</html>
