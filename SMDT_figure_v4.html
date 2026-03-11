@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SMDT Architecture</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&family=Playfair+Display:ital,wght@0,700;1,500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:       #f7f5f0;
+  --white:    #ffffff;
+  --ink:      #1c1812;
+  --ink2:     #3d3628;
+  --muted:    #8c8070;
+  --rule:     #e2ddd4;
+
+  --blue:     #1a5c8c;
+  --blue-bg:  #edf3f9;
+  --blue-bd:  #bdd0e2;
+
+  --purple:   #5a3d8f;
+  --pur-bg:   #f1edf9;
+  --pur-bd:   #cabfdf;
+
+  --orange:   #b34f1c;
+  --org-bg:   #fdf0e8;
+  --org-bd:   #e2b89a;
+
+  --green:    #2a7a4b;
+  --grn-bg:   #edf6f1;
+  --grn-bd:   #a8d4bb;
+
+  --red:      #8b3535;
+  --red-bg:   #fdf2f2;
+  --red-bd:   #e0b4b4;
+}
+body { background: var(--bg); color: var(--ink); font-family: 'IBM Plex Sans', sans-serif; }
+.page { max-width: 1120px; margin: 0 auto; padding: 44px 44px 60px; }
+
+/* ── HEADER ── */
+.header { border-bottom: 2px solid var(--ink); padding-bottom: 16px; margin-bottom: 32px; display: flex; align-items: flex-end; justify-content: space-between; }
+.h-left .eyebrow { font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 5px; }
+.h-left h1 { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 700; line-height: 1.2; }
+.h-left h1 span { font-style: italic; font-weight: 500; color: var(--muted); }
+.h-right { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--muted); text-align: right; line-height: 1.7; }
+
+/* ── PATIENT CASE BAR ── */
+.case-bar {
+  background: var(--white);
+  border: 1.5px solid var(--red-bd);
+  border-left: 4px solid var(--red);
+  border-radius: 10px;
+  padding: 16px 22px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.cb-icon { font-size: 28px; flex-shrink: 0; }
+.cb-info { flex: 1; }
+.cb-title { font-family: 'Playfair Display', serif; font-size: 14px; font-weight: 700; color: var(--red); margin-bottom: 5px; }
+.cb-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+.pill { display: inline-flex; align-items: center; gap: 5px; font-family: 'IBM Plex Mono', monospace; font-size: 10px; padding: 3px 9px; border-radius: 4px; background: var(--red-bg); border: 1px solid var(--red-bd); color: var(--red); }
+.pill.blue   { background: var(--blue-bg); border-color: var(--blue-bd); color: var(--blue); }
+.pill.purple { background: var(--pur-bg);  border-color: var(--pur-bd);  color: var(--purple); }
+.pill.green  { background: var(--grn-bg);  border-color: var(--grn-bd);  color: var(--green); }
+.pill.grey   { background: var(--bg); border-color: var(--rule); color: var(--muted); }
+.cb-goal { margin-left: auto; flex-shrink: 0; background: var(--red-bg); border: 1px solid var(--red-bd); border-radius: 8px; padding: 10px 16px; text-align: center; max-width: 200px; }
+.cb-goal .cg-label { font-family: 'IBM Plex Mono', monospace; font-size: 8.5px; letter-spacing: 2px; text-transform: uppercase; color: var(--red); margin-bottom: 4px; }
+.cb-goal .cg-text  { font-size: 12px; color: var(--ink2); line-height: 1.4; font-weight: 500; }
+
+/* ── MAIN 3-COLUMN LAYOUT ── */
+.main { display: grid; grid-template-columns: 230px 1fr 260px; gap: 0; align-items: stretch; }
+
+/* ── LEFT: SMDT CORE ── */
+.smdt-col {
+  background: var(--white);
+  border: 1.5px solid var(--rule);
+  border-right: none;
+  border-radius: 12px 0 0 12px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.smdt-top {
+  background: var(--ink);
+  padding: 14px 16px;
+}
+.smdt-top .st-eyebrow { font-family: 'IBM Plex Mono', monospace; font-size: 8.5px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 4px; }
+.smdt-top .st-title { font-family: 'Playfair Display', serif; font-size: 14px; font-weight: 700; color: white; line-height: 1.2; }
+.smdt-top .st-sub { font-size: 10.5px; color: rgba(255,255,255,0.45); margin-top: 3px; font-style: italic; }
+
+/* memory section */
+.mem-section {
+  padding: 16px;
+  border-bottom: 1.5px solid var(--rule);
+  flex: 1;
+}
+.sec-tag { font-family: 'IBM Plex Mono', monospace; font-size: 8.5px; letter-spacing: 2px; text-transform: uppercase; padding: 2px 8px; border-radius: 3px; display: inline-block; margin-bottom: 10px; font-weight: 500; }
+.tag-blue   { color: var(--blue);   background: var(--blue-bg); border: 1px solid var(--blue-bd); }
+.tag-purple { color: var(--purple); background: var(--pur-bg);  border: 1px solid var(--pur-bd);  }
+.tag-orange { color: var(--orange); background: var(--org-bg);  border: 1px solid var(--org-bd);  }
+.tag-green  { color: var(--green);  background: var(--grn-bg);  border: 1px solid var(--grn-bd);  }
+
+.mem-title { font-size: 12.5px; font-weight: 600; color: var(--blue); margin-bottom: 8px; }
+.mem-thought {
+  background: var(--blue-bg);
+  border: 1px solid var(--blue-bd);
+  border-left: 3px solid var(--blue);
+  border-radius: 0 6px 6px 0;
+  padding: 8px 10px;
+  font-size: 11px;
+  color: var(--ink2);
+  line-height: 1.5;
+  margin-bottom: 6px;
+}
+.mem-thought .mt-label { font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--blue); margin-bottom: 3px; }
+.uq-box { background: var(--pur-bg); border: 1px solid var(--pur-bd); border-radius: 7px; padding: 9px 11px; margin-top: 10px; }
+.uq-box .ub-label { font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--purple); margin-bottom: 3px; }
+.uq-box .ub-text { font-size: 11px; color: var(--ink2); line-height: 1.45; }
+
+/* agent section */
+.agent-section { padding: 16px; }
+.agent-title { font-size: 12.5px; font-weight: 600; color: var(--purple); margin-bottom: 10px; }
+.agent-cap {
+  display: flex; gap: 7px; align-items: flex-start;
+  font-size: 11px; color: var(--ink2); line-height: 1.4;
+  margin-bottom: 7px;
+}
+.agent-cap .ac-icon { font-size: 13px; flex-shrink: 0; }
+
+/* ── MIDDLE: INTERACTION LOOP ── */
+.loop-col {
+  background: var(--bg);
+  border-top: 1.5px solid var(--rule);
+  border-bottom: 1.5px solid var(--rule);
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  position: relative;
+}
+
+/* vertical spine */
+.loop-col::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 52px;
+  bottom: 60px;
+  width: 1px;
+  background: linear-gradient(180deg, var(--blue) 0%, var(--purple) 40%, var(--orange) 75%, var(--green) 100%);
+  opacity: 0.15;
+  transform: translateX(-50%);
+}
+
+.loop-header {
+  text-align: center;
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--rule);
+}
+.lh-title { font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--purple); }
+.lh-sub { font-size: 11px; color: var(--muted); margin-top: 3px; }
+
+/* each exchange row */
+.exchange {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 10px;
+  position: relative;
+  z-index: 1;
+}
+.ex-turn-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.ex-num {
+  width: 22px; height: 22px; flex-shrink: 0;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9.5px;
+  font-weight: 500;
+  color: white;
+}
+.ex-title { font-size: 11px; font-weight: 600; color: var(--ink); }
+
+/* outbound (smdt → external) */
+.ex-out, .ex-in {
+  border-radius: 7px;
+  padding: 8px 11px;
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--ink2);
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+.ex-out { background: var(--white); border: 1px solid var(--rule); margin-left: 12px; }
+.ex-in  { background: var(--white); border: 1px solid var(--rule); margin-right: 12px; }
+
+.ex-dir {
+  flex-shrink: 0;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 8.5px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 3px;
+  white-space: nowrap;
+  margin-top: 1px;
+}
+.dir-out { background: var(--pur-bg); border: 1px solid var(--pur-bd); color: var(--purple); }
+.dir-in  { background: var(--org-bg); border: 1px solid var(--org-bd); color: var(--orange); }
+.dir-act { background: var(--blue-bg); border: 1px solid var(--blue-bd); color: var(--blue); }
+.dir-done { background: var(--grn-bg); border: 1px solid var(--grn-bd); color: var(--green); }
+
+.ex-text { flex: 1; }
+.ex-text strong { font-weight: 600; color: var(--ink); }
+
+.ex-divider { height: 1px; background: var(--rule); margin: 8px 0; }
+
+/* ── RIGHT: EXTERNAL WORLD ── */
+.ext-col {
+  background: var(--white);
+  border: 1.5px solid var(--rule);
+  border-left: none;
+  border-radius: 0 12px 12px 0;
+  overflow: hidden;
+}
+.ext-top {
+  background: var(--orange);
+  padding: 14px 16px;
+}
+.ext-top .et-eyebrow { font-family: 'IBM Plex Mono', monospace; font-size: 8.5px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.5); margin-bottom: 4px; }
+.ext-top .et-title { font-family: 'Playfair Display', serif; font-size: 14px; font-weight: 700; color: white; }
+.ext-top .et-sub { font-size: 10.5px; color: rgba(255,255,255,0.5); margin-top: 3px; font-style: italic; }
+
+.ext-section { padding: 14px 16px; border-bottom: 1.5px solid var(--rule); }
+.ext-section:last-child { border-bottom: none; }
+.ext-section-title { font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 9px; }
+
+.ext-item {
+  display: flex; gap: 9px; align-items: center;
+  padding: 8px 10px;
+  border-radius: 7px;
+  margin-bottom: 6px;
+  font-size: 11.5px;
+  color: var(--ink2);
+  border: 1px solid;
+}
+.ext-item .ei-icon { font-size: 16px; flex-shrink: 0; }
+.ext-item .ei-name { font-weight: 600; display: block; font-size: 11.5px; }
+.ext-item .ei-role { font-size: 10.5px; color: var(--muted); font-family: 'IBM Plex Mono', monospace; }
+.ext-item.llm { background: var(--org-bg); border-color: var(--org-bd); }
+.ext-item.db  { background: var(--blue-bg); border-color: var(--blue-bd); }
+.ext-item.prov{ background: var(--grn-bg); border-color: var(--grn-bd); }
+
+/* diversity prism */
+.prism-box { background: var(--pur-bg); border: 1px solid var(--pur-bd); border-radius: 8px; padding: 10px 12px; margin-top: 4px; }
+.prism-title { font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--purple); margin-bottom: 7px; }
+.prism-row { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+.prism-row:last-child { margin-bottom: 0; }
+.prism-name { font-size: 10.5px; color: var(--ink2); width: 62px; flex-shrink: 0; font-family: 'IBM Plex Mono', monospace; }
+.prism-bar-wrap { flex: 1; height: 5px; background: rgba(90,61,143,0.1); border-radius: 3px; overflow: hidden; }
+.prism-bar { height: 100%; border-radius: 3px; background: var(--purple); opacity: 0.6; }
+.prism-score { font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; color: var(--purple); width: 32px; text-align: right; }
+
+/* ── OUTCOME STRIP ── */
+.outcome {
+  margin-top: 18px;
+  background: var(--white);
+  border: 1.5px solid var(--grn-bd);
+  border-left: 4px solid var(--green);
+  border-radius: 10px;
+  padding: 16px 22px;
+}
+.oc-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.oc-icon-big { font-size: 22px; }
+.oc-label { font-family: 'IBM Plex Mono', monospace; font-size: 8.5px; letter-spacing: 2px; text-transform: uppercase; color: var(--green); margin-bottom: 2px; }
+.oc-title { font-size: 13px; font-weight: 600; color: var(--ink); }
+.oc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.oc-card { background: var(--grn-bg); border: 1px solid var(--grn-bd); border-radius: 8px; padding: 11px 13px; }
+.oc-card-icon { font-size: 18px; margin-bottom: 5px; }
+.oc-card-title { font-size: 11.5px; font-weight: 600; color: var(--ink); margin-bottom: 3px; }
+.oc-card-desc { font-size: 10.5px; color: var(--muted); line-height: 1.45; }
+
+/* ── AIMS ROW ── */
+.aims-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 22px;
+  padding-top: 22px;
+  border-top: 1.5px solid var(--rule);
+}
+.aim-card { background: var(--white); border: 1px solid var(--rule); border-radius: 10px; padding: 16px; position: relative; overflow: hidden; }
+.aim-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+.aim-card.a1::before { background: var(--blue); }
+.aim-card.a2::before { background: var(--purple); }
+.aim-card.a3::before { background: var(--orange); }
+.aim-num { font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; padding: 2px 8px; border-radius: 3px; display: inline-block; font-weight: 500; }
+.a1 .aim-num { color: var(--blue);   background: var(--blue-bg); border: 1px solid var(--blue-bd); }
+.a2 .aim-num { color: var(--purple); background: var(--pur-bg);  border: 1px solid var(--pur-bd);  }
+.a3 .aim-num { color: var(--orange); background: var(--org-bg);  border: 1px solid var(--org-bd);  }
+.aim-title { font-family: 'Playfair Display', serif; font-size: 13px; font-weight: 700; margin-bottom: 6px; color: var(--ink); line-height: 1.3; }
+.aim-novel { font-size: 11px; color: var(--muted); line-height: 1.55; }
+.aim-novel strong { color: var(--ink2); font-weight: 500; }
+
+@keyframes rise { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+.page > * { animation: rise .6s ease both; }
+.case-bar   { animation-delay: .05s; }
+.main       { animation-delay: .12s; }
+.outcome    { animation-delay: .20s; }
+.aims-row   { animation-delay: .28s; }
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- HEADER -->
+<div class="header">
+  <div class="h-left">
+    <div class="eyebrow">Research Proposal · Framework Architecture</div>
+    <h1>Sovereign Medical Digital Twin <span>(SMDT)</span></h1>
+  </div>
+  <div class="h-right">
+    Memory · Privacy Mediation · Agentic Orchestration<br>
+    <strong style="color:var(--ink);">Aims 1 – 3 · Case-Driven Overview</strong>
+  </div>
+</div>
+
+<!-- PATIENT CASE BAR -->
+<div class="case-bar">
+  <div class="cb-icon">🧑‍⚕️</div>
+  <div class="cb-info">
+    <div class="cb-title">Patient: 58-yr-old, Stage IIIA NSCLC · Post-surgery · On 1st-line osimertinib · ctDNA negative</div>
+    <div class="cb-pills">
+      <span class="pill">🧬 EGFR Exon 19 del</span>
+      <span class="pill green">📉 ctDNA ×3 undetectable</span>
+      <span class="pill blue">🩻 CT stable at 6mo</span>
+      <span class="pill purple">💊 Osimertinib 6mo</span>
+      <span class="pill grey">📋 ECOG PS 1</span>
+      <span class="pill grey">🏦 PPO · PA required</span>
+    </div>
+  </div>
+  <div class="cb-goal">
+    <div class="cg-label">Patient Goal</div>
+    <div class="cg-text">Find &amp; enroll in the best clinical trial before potential acquired resistance</div>
+  </div>
+</div>
+
+<!-- MAIN 3-COLUMN -->
+<div class="main">
+
+  <!-- LEFT: SMDT CORE -->
+  <div class="smdt-col">
+    <div class="smdt-top">
+      <div class="st-eyebrow">On-Device · Fully Private</div>
+      <div class="st-title">SMDT Core</div>
+      <div class="st-sub">Digital Body + Protective Mind</div>
+    </div>
+
+    <div class="mem-section">
+      <div class="sec-tag tag-blue">Aim 1 · Memory</div>
+      <div class="mem-title">Reasoning over local data</div>
+
+      <div class="mem-thought">
+        <div class="mt-label">Clinical Inference</div>
+        EGFR ex19del → osimertinib-sensitive. ctDNA ×3 negative → MRD-negative confirmed. CT stable → no progression yet.
+      </div>
+      <div class="mem-thought">
+        <div class="mt-label">Temporal Reasoning</div>
+        Median resistance onset: 18–24 months. Patient at 6 months. <strong>Now</strong> is the optimal window for MRD-directed trial enrollment — before resistance forecloses options.
+      </div>
+      <div class="mem-thought">
+        <div class="mt-label">Constraint Mapping</div>
+        AST mildly elevated → check hepatic exclusion criteria. OOP $4,200 remaining. PPO in-network sites only. 80 mi radius → 4 eligible academic centers.
+      </div>
+
+      <div class="uq-box">
+        <div class="ub-label">⚡ UQ Trigger</div>
+        <div class="ub-text">Local confidence insufficient for ranking 80+ trials &amp; interpreting protocol exclusions. Escalate to agent.</div>
+      </div>
+    </div>
+
+    <div class="agent-section">
+      <div class="sec-tag tag-purple">Aim 2+3 · Agent</div>
+      <div class="agent-title">Protective Mind capabilities</div>
+      <div class="agent-cap"><span class="ac-icon">🛡️</span> De-identifies queries — no PII transmitted externally</div>
+      <div class="agent-cap"><span class="ac-icon">🎮</span> Game-theoretic disclosure: utility vs. re-ID risk</div>
+      <div class="agent-cap"><span class="ac-icon">🩺</span> Translates patient needs → professional clinical queries</div>
+      <div class="agent-cap"><span class="ac-icon">🔄</span> Manages multi-turn loop; caches reasoning locally</div>
+    </div>
+  </div>
+
+  <!-- MIDDLE: INTERACTION LOOP -->
+  <div class="loop-col">
+    <div class="loop-header">
+      <div class="lh-title">Multi-Turn Agentic Interaction Loop</div>
+      <div class="lh-sub">SMDT actively reaches out, reasons, and acts — across multiple rounds</div>
+    </div>
+
+    <!-- T1 -->
+    <div class="exchange">
+      <div class="ex-turn-label">
+        <div class="ex-num" style="background:var(--blue);">1</div>
+        <div class="ex-title">Initial Trial Search</div>
+      </div>
+      <div class="ex-out">
+        <span class="ex-dir dir-out">Query →</span>
+        <div class="ex-text">ClinicalTrials.gov + Med-PaLM: <strong>MRD-negative EGFR ex19del NSCLC, post-adjuvant, PS1</strong> — retrieve open consolidation & switch-maintenance trials</div>
+      </div>
+      <div class="ex-in">
+        <span class="ex-dir dir-in">← Return</span>
+        <div class="ex-text">47 open trials · Med-PaLM prioritizes: <strong>LAURA-ext, ADAURA follow-on, PACIFIC-like arms</strong> → 12 biomarker-matched candidates</div>
+      </div>
+    </div>
+    <div class="ex-divider"></div>
+
+    <!-- T2 -->
+    <div class="exchange">
+      <div class="ex-turn-label">
+        <div class="ex-num" style="background:var(--purple);">2</div>
+        <div class="ex-title">Eligibility Filtering + Insurance Check</div>
+      </div>
+      <div class="ex-out">
+        <span class="ex-dir dir-out">Query →</span>
+        <div class="ex-text">GPT-4o: interpret hepatic exclusion clauses for 4 ambiguous trials. Insurance API: PA feasibility check for each site against patient's PPO plan.</div>
+      </div>
+      <div class="ex-in">
+        <span class="ex-dir dir-in">← Return</span>
+        <div class="ex-text">2 trials cleared on hepatic criteria · PA feasible at 3 sites · <strong>5 viable trials</strong> shortlisted. 2 require direct PI clarification.</div>
+      </div>
+    </div>
+    <div class="ex-divider"></div>
+
+    <!-- T3 -->
+    <div class="exchange">
+      <div class="ex-turn-label">
+        <div class="ex-num" style="background:var(--purple);">3</div>
+        <div class="ex-title">Direct Outreach — Coordinators &amp; Oncologist</div>
+      </div>
+      <div class="ex-out">
+        <span class="ex-dir dir-act">Act →</span>
+        <div class="ex-text">Agent auto-drafts <strong>de-identified eligibility emails</strong> to 2 trial coordinators (re: AST threshold). Drafts <strong>referral letter</strong> to oncologist with top-3 trial summary.</div>
+      </div>
+      <div class="ex-in">
+        <span class="ex-dir dir-in">← Return</span>
+        <div class="ex-text">Site A: AST ≤2.5× ULN acceptable — <strong>patient qualifies</strong>. Site B: stricter threshold — deferred. Oncologist confirms shortlist; adds PS trajectory context.</div>
+      </div>
+    </div>
+    <div class="ex-divider"></div>
+
+    <!-- T4 -->
+    <div class="exchange">
+      <div class="ex-turn-label">
+        <div class="ex-num" style="background:var(--orange);">4</div>
+        <div class="ex-title">Diversity Prism — Independent Second Opinions</div>
+      </div>
+      <div class="ex-out">
+        <span class="ex-dir dir-out">Query →</span>
+        <div class="ex-text">Parallel query to <strong>GPT · Med-PaLM · Claude</strong> (separate disclosure windows): rank 4 eligible trials by expected benefit for this patient profile.</div>
+      </div>
+      <div class="ex-in">
+        <span class="ex-dir dir-in">← Return</span>
+        <div class="ex-text">GPT &amp; Med-PaLM: favor LAURA-ext. <strong>Claude diverges</strong>: recommends switch-maintenance + serial ctDNA monitoring if T790M resistance emerges within 6mo. Independent opinion captured.</div>
+      </div>
+    </div>
+    <div class="ex-divider"></div>
+
+    <!-- T5 -->
+    <div class="exchange">
+      <div class="ex-turn-label">
+        <div class="ex-num" style="background:var(--green);">5</div>
+        <div class="ex-title">Final Execution — Forms &amp; Action Plan</div>
+      </div>
+      <div class="ex-out">
+        <span class="ex-dir dir-act">Act →</span>
+        <div class="ex-text">Auto-fill <strong>insurance PA forms</strong> from local private data. Compile ranked trial plan with independent opinions. Update local memory baseline.</div>
+      </div>
+      <div class="ex-in">
+        <span class="ex-dir dir-done">✓ Done</span>
+        <div class="ex-text"><strong>#1 LAURA-ext</strong> (23mi, PA pre-approved) · <strong>#2 Switch-maint</strong> (divergent opinion flagged). All correspondence ready. Sovereignty maintained throughout.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RIGHT: EXTERNAL WORLD -->
+  <div class="ext-col">
+    <div class="ext-top">
+      <div class="et-eyebrow">Anonymized Access Only</div>
+      <div class="et-title">External World</div>
+      <div class="et-sub">No raw PII ever transmitted</div>
+    </div>
+
+    <div class="ext-section">
+      <div class="ext-section-title">Specialist LLMs</div>
+      <div class="ext-item llm"><span class="ei-icon">🤖</span><div><span class="ei-name">GPT-4o / o3</span><span class="ei-role">Complex reasoning · Protocol interpretation</span></div></div>
+      <div class="ext-item llm"><span class="ei-icon">🧬</span><div><span class="ei-name">Med-PaLM 2</span><span class="ei-role">Clinical evidence · EHR reasoning</span></div></div>
+      <div class="ext-item llm"><span class="ei-icon">📚</span><div><span class="ei-name">Claude (Specialist)</span><span class="ei-role">Literature synthesis · Differential Dx</span></div></div>
+      <div class="prism-box">
+        <div class="prism-title">🔺 Diversity Prism — disagreement scores</div>
+        <div class="prism-row"><span class="prism-name">GPT</span><div class="prism-bar-wrap"><div class="prism-bar" style="width:82%;"></div></div><span class="prism-score">Δ0.82</span></div>
+        <div class="prism-row"><span class="prism-name">Med-PaLM</span><div class="prism-bar-wrap"><div class="prism-bar" style="width:65%;"></div></div><span class="prism-score">Δ0.65</span></div>
+        <div class="prism-row"><span class="prism-name">Claude</span><div class="prism-bar-wrap"><div class="prism-bar" style="width:47%;"></div></div><span class="prism-score">Δ0.47</span></div>
+      </div>
+    </div>
+
+    <div class="ext-section">
+      <div class="ext-section-title">Knowledge Databases</div>
+      <div class="ext-item db"><span class="ei-icon">🔬</span><div><span class="ei-name">ClinicalTrials.gov · EU-CTR</span><span class="ei-role">Trial eligibility · Enrollment</span></div></div>
+      <div class="ext-item db"><span class="ei-icon">📖</span><div><span class="ei-name">PubMed · OMIM · DrugBank</span><span class="ei-role">Literature · Genomics · Drug interactions</span></div></div>
+    </div>
+
+    <div class="ext-section">
+      <div class="ext-section-title">Healthcare Providers &amp; Admin</div>
+      <div class="ext-item prov"><span class="ei-icon">🏥</span><div><span class="ei-name">Trial Coordinators (×2)</span><span class="ei-role">Hepatic criterion clarification</span></div></div>
+      <div class="ext-item prov"><span class="ei-icon">👨‍⚕️</span><div><span class="ei-name">Referring Oncologist</span><span class="ei-role">Trial shortlist review &amp; sign-off</span></div></div>
+      <div class="ext-item prov"><span class="ei-icon">🏦</span><div><span class="ei-name">Insurance PA System</span><span class="ei-role">Prior authorization · Coverage check</span></div></div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<!-- OUTCOME -->
+<div class="outcome">
+  <div class="oc-header">
+    <div class="oc-icon-big">✅</div>
+    <div>
+      <div class="oc-label">Patient Outcome — Delivered Autonomously</div>
+      <div class="oc-title">Ranked, independently-verified trial plan · All correspondence drafted · Forms completed · Full data sovereignty maintained</div>
+    </div>
+  </div>
+  <div class="oc-grid">
+    <div class="oc-card"><div class="oc-card-icon">🏆</div><div class="oc-card-title">Ranked Trial Matches</div><div class="oc-card-desc">Composite score: biomarker fit × evidence × access × insurance × hepatic criteria</div></div>
+    <div class="oc-card"><div class="oc-card-icon">✉️</div><div class="oc-card-title">All Correspondence Ready</div><div class="oc-card-desc">Emails to coordinators, referral letter to oncologist — de-identified, one-click approval</div></div>
+    <div class="oc-card"><div class="oc-card-icon">📄</div><div class="oc-card-title">PA Forms Auto-filled</div><div class="oc-card-desc">Insurance prior authorization completed from local private data — no manual entry, no leakage</div></div>
+    <div class="oc-card"><div class="oc-card-icon">🔺</div><div class="oc-card-title">Independent Second Opinions</div><div class="oc-card-desc">Diversity Prism surfaces Claude's divergent perspective — genuine clinical alternatives, not one consensus</div></div>
+  </div>
+</div>
+
+<!-- AIMS -->
+<div class="aims-row">
+  <div class="aim-card a1">
+    <div class="aim-num">Aim 1 · Contribution</div>
+    <div class="aim-title">Self-Reflective On-Device Memory</div>
+    <div class="aim-novel">First on-device SLM combining <strong>longitudinal personalized fine-tuning</strong> with <strong>conformal prediction UQ</strong> — transforms local AI from a static record into an active, self-reflective diagnostic asset that knows the limits of its own knowledge.</div>
+  </div>
+  <div class="aim-card a2">
+    <div class="aim-num">Aim 2 · Contribution</div>
+    <div class="aim-title">Active Strategic Privacy Mediation</div>
+    <div class="aim-novel">Shifts privacy from passive filtering to <strong>context-aware game-theoretic mediation</strong>. Disclosure adapts dynamically per turn based on clinical necessity and re-identification risk — beyond differential privacy or k-anonymity.</div>
+  </div>
+  <div class="aim-card a3">
+    <div class="aim-num">Aim 3 · Contribution</div>
+    <div class="aim-title">Diagnostic Diversity as Clinical Resource</div>
+    <div class="aim-novel">The <strong>Diversity Prism</strong> is the first formalized mechanism treating inter-model disagreement as a <strong>measurable clinical signal</strong> — AI heterogeneity becomes a tool for bias-resistant independent second opinions.</div>
+  </div>
+</div>
+
+</div>
+</body>
+</html>
