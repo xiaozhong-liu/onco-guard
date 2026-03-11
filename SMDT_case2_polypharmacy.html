@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SMDT — Polypharmacy Case</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&family=Playfair+Display:ital,wght@0,700;1,500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:       #f6f4f0;
+  --white:    #ffffff;
+  --ink:      #1c1812;
+  --ink2:     #3d3628;
+  --muted:    #8c8070;
+  --rule:     #e2ddd4;
+
+  /* case accent — warm teal */
+  --teal:     #1a7a6e;
+  --teal-bg:  #eaf5f3;
+  --teal-bd:  #9dd0c8;
+
+  --blue:     #1a5c8c;
+  --blue-bg:  #edf3f9;
+  --blue-bd:  #bdd0e2;
+
+  --purple:   #5a3d8f;
+  --pur-bg:   #f1edf9;
+  --pur-bd:   #cabfdf;
+
+  --orange:   #b34f1c;
+  --org-bg:   #fdf0e8;
+  --org-bd:   #e2b89a;
+
+  --green:    #2a7a4b;
+  --grn-bg:   #edf6f1;
+  --grn-bd:   #a8d4bb;
+
+  --red:      #8b4513;
+  --red-bg:   #fdf4ef;
+  --red-bd:   #ddb899;
+
+  --warn:     #9a5c00;
+  --warn-bg:  #fdf6e3;
+  --warn-bd:  #dfc98a;
+}
+body { background: var(--bg); color: var(--ink); font-family: 'IBM Plex Sans', sans-serif; }
+.page { max-width: 1120px; margin: 0 auto; padding: 44px 44px 60px; }
+
+/* ── HEADER ── */
+.header { border-bottom: 2px solid var(--ink); padding-bottom: 16px; margin-bottom: 28px; display: flex; align-items: flex-end; justify-content: space-between; }
+.h-left .eyebrow { font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 5px; }
+.h-left h1 { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 700; line-height: 1.2; }
+.h-left h1 span { font-style: italic; font-weight: 500; color: var(--muted); }
+.h-right { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--muted); text-align: right; line-height: 1.7; }
+
+/* ── PATIENT CASE BAR ── */
+.case-bar {
+  background: var(--white);
+  border: 1.5px solid var(--red-bd);
+  border-left: 4px solid var(--red);
+  border-radius: 10px;
+  padding: 16px 22px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+}
+.cb-icon { font-size: 28px; flex-shrink: 0; padding-top: 2px; }
+.cb-info { flex: 1; }
+.cb-title { font-family: 'Playfair Display', serif; font-size: 14px; font-weight: 700; color: var(--red); margin-bottom: 7px; }
+.cb-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+.pill { display: inline-flex; align-items: center; gap: 5px; font-family: 'IBM Plex Mono', monospace; font-size: 10px; padding: 3px 9px; border-radius: 4px; background: var(--red-bg); border: 1px solid var(--red-bd); color: var(--red); }
+.pill.blue   { background: var(--blue-bg);  border-color: var(--blue-bd);  color: var(--blue); }
+.pill.purple { background: var(--pur-bg);   border-color: var(--pur-bd);   color: var(--purple); }
+.pill.teal   { background: var(--teal-bg);  border-color: var(--teal-bd);  color: var(--teal); }
+.pill.green  { background: var(--grn-bg);   border-color: var(--grn-bd);   color: var(--green); }
+.pill.warn   { background: var(--warn-bg);  border-color: var(--warn-bd);  color: var(--warn); }
+.pill.grey   { background: var(--bg); border-color: var(--rule); color: var(--muted); }
+.cb-goal { flex-shrink: 0; background: var(--red-bg); border: 1px solid var(--red-bd); border-radius: 8px; padding: 10px 16px; text-align: center; max-width: 210px; }
+.cb-goal .cg-label { font-family: 'IBM Plex Mono', monospace; font-size: 8.5px; letter-spacing: 2px; text-transform: uppercase; color: var(--red); margin-bottom: 4px; }
+.cb-goal .cg-text  { font-size: 11.5px; color: var(--ink2); line-height: 1.45; font-weight: 500; }
+
+/* ── PROBLEM ALERT ── */
+.alert-bar {
+  background: var(--warn-bg);
+  border: 1.5px solid var(--warn-bd);
+  border-left: 4px solid var(--warn);
+  border-radius: 10px;
+  padding: 12px 20px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+.ab-icon { font-size: 20px; flex-shrink: 0; }
+.ab-title { font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--warn); margin-bottom: 4px; font-weight: 500; }
+.ab-text { font-size: 12px; color: var(--ink2); line-height: 1.5; }
+.ab-text strong { color: var(--warn); font-weight: 600; }
+
+/* ── MAIN 3-COLUMN LAYOUT ── */
+.main { display: grid; grid-template-columns: 230px 1fr 260px; gap: 0; align-items: stretch; }
+
+/* ── LEFT: SMDT CORE ── */
+.smdt-col {
+  background: var(--white);
+  border: 1.5px solid var(--rule);
+  border-right: none;
+  border-radius: 12px 0 0 12px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.smdt-top { background: var(--ink); padding: 14px 16px; }
+.smdt-top .st-eyebrow { font-family: 'IBM Plex Mono', monospace; font-size: 8.5px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 4px; }
+.smdt-top .st-title { font-family: 'Playfair Display', serif; font-size: 14px; font-weight: 700; color: white; line-height: 1.2; }
+.smdt-top .st-sub { font-size: 10.5px; color: rgba(255,255,255,0.45); margin-top: 3px; font-style: italic; }
+
+.sec-tag { font-family: 'IBM Plex Mono', monospace; font-size: 8.5px; letter-spacing: 2px; text-transform: uppercase; padding: 2px 8px; border-radius: 3px; display: inline-block; margin-bottom: 10px; font-weight: 500; }
+.tag-blue   { color: var(--blue);   background: var(--blue-bg);  border: 1px solid var(--blue-bd);  }
+.tag-purple { color: var(--purple); background: var(--pur-bg);   border: 1px solid var(--pur-bd);   }
+.tag-teal   { color: var(--teal);   background: var(--teal-bg);  border: 1px solid var(--teal-bd);  }
+.tag-warn   { color: var(--warn);   background: var(--warn-bg);  border: 1px solid var(--warn-bd);  }
+
+/* memory section */
+.mem-section { padding: 16px; border-bottom: 1.5px solid var(--rule); flex: 1; }
+.mem-title { font-size: 12.5px; font-weight: 600; color: var(--blue); margin-bottom: 8px; }
+.mem-thought {
+  background: var(--blue-bg);
+  border: 1px solid var(--blue-bd);
+  border-left: 3px solid var(--blue);
+  border-radius: 0 6px 6px 0;
+  padding: 8px 10px;
+  font-size: 11px;
+  color: var(--ink2);
+  line-height: 1.5;
+  margin-bottom: 6px;
+}
+.mem-thought .mt-label { font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--blue); margin-bottom: 3px; }
+.mem-thought.warn { background: var(--warn-bg); border-color: var(--warn-bd); border-left-color: var(--warn); }
+.mem-thought.warn .mt-label { color: var(--warn); }
+.mem-thought.danger { background: #fdf2f2; border-color: #e0b4b4; border-left-color: #8b3535; }
+.mem-thought.danger .mt-label { color: #8b3535; }
+
+.uq-box { background: var(--pur-bg); border: 1px solid var(--pur-bd); border-radius: 7px; padding: 9px 11px; margin-top: 10px; }
+.uq-box .ub-label { font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--purple); margin-bottom: 3px; }
+.uq-box .ub-text { font-size: 11px; color: var(--ink2); line-height: 1.45; }
+
+/* patient context section */
+.ctx-section { padding: 14px 16px; border-bottom: 1.5px solid var(--rule); }
+.ctx-title { font-size: 12px; font-weight: 600; color: var(--teal); margin-bottom: 9px; }
+.ctx-row { display: flex; align-items: flex-start; gap: 7px; font-size: 11px; color: var(--ink2); line-height: 1.4; margin-bottom: 6px; }
+.ctx-row .cr-icon { font-size: 13px; flex-shrink: 0; }
+
+/* agent section */
+.agent-section { padding: 16px; }
+.agent-title { font-size: 12.5px; font-weight: 600; color: var(--purple); margin-bottom: 10px; }
+.agent-cap { display: flex; gap: 7px; align-items: flex-start; font-size: 11px; color: var(--ink2); line-height: 1.4; margin-bottom: 7px; }
+.agent-cap .ac-icon { font-size: 13px; flex-shrink: 0; }
+
+/* ── MIDDLE: INTERACTION LOOP ── */
+.loop-col {
+  background: var(--bg);
+  border-top: 1.5px solid var(--rule);
+  border-bottom: 1.5px solid var(--rule);
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+.loop-col::before {
+  content: '';
+  position: absolute;
+  left: 50%; top: 52px; bottom: 60px;
+  width: 1px;
+  background: linear-gradient(180deg, var(--blue) 0%, var(--purple) 35%, var(--warn) 65%, var(--green) 100%);
+  opacity: 0.15;
+  transform: translateX(-50%);
+}
+.loop-header { text-align: center; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid var(--rule); }
+.lh-title { font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--purple); }
+.lh-sub { font-size: 11px; color: var(--muted); margin-top: 3px; }
+
+/* each exchange */
+.exchange { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; position: relative; z-index: 1; }
+.ex-turn-label { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.ex-num { width: 22px; height: 22px; flex-shrink: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; font-weight: 500; color: white; }
+.ex-title { font-size: 11px; font-weight: 600; color: var(--ink); }
+.ex-out, .ex-in {
+  border-radius: 7px; padding: 8px 11px; font-size: 11px; line-height: 1.45; color: var(--ink2);
+  display: flex; gap: 8px; align-items: flex-start;
+}
+.ex-out { background: var(--white); border: 1px solid var(--rule); margin-left: 12px; }
+.ex-in  { background: var(--white); border: 1px solid var(--rule); margin-right: 12px; }
+.ex-dir { flex-shrink: 0; font-family: 'IBM Plex Mono', monospace; font-size: 8.5px; letter-spacing: 1px; text-transform: uppercase; padding: 2px 7px; border-radius: 3px; white-space: nowrap; margin-top: 1px; }
+.dir-out  { background: var(--pur-bg);  border: 1px solid var(--pur-bd);  color: var(--purple); }
+.dir-in   { background: var(--org-bg);  border: 1px solid var(--org-bd);  color: var(--orange); }
+.dir-act  { background: var(--blue-bg); border: 1px solid var(--blue-bd); color: var(--blue); }
+.dir-warn { background: var(--warn-bg); border: 1px solid var(--warn-bd); color: var(--warn); }
+.dir-done { background: var(--grn-bg);  border: 1px solid var(--grn-bd);  color: var(--green); }
+.ex-text { flex: 1; }
+.ex-text strong { font-weight: 600; color: var(--ink); }
+.ex-text .flag { color: #8b3535; font-weight: 600; }
+.ex-divider { height: 1px; background: var(--rule); margin: 8px 0; }
+
+/* ── RIGHT: EXTERNAL WORLD ── */
+.ext-col {
+  background: var(--white);
+  border: 1.5px solid var(--rule);
+  border-left: none;
+  border-radius: 0 12px 12px 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.ext-top { background: var(--teal); padding: 14px 16px; }
+.ext-top .et-eyebrow { font-family: 'IBM Plex Mono', monospace; font-size: 8.5px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.5); margin-bottom: 4px; }
+.ext-top .et-title { font-family: 'Playfair Display', serif; font-size: 14px; font-weight: 700; color: white; }
+.ext-top .et-sub { font-size: 10.5px; color: rgba(255,255,255,0.5); margin-top: 3px; font-style: italic; }
+.ext-section { padding: 13px 16px; border-bottom: 1.5px solid var(--rule); flex: 1; }
+.ext-section:last-child { border-bottom: none; }
+.ext-section-title { font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 9px; }
+.ext-item { display: flex; gap: 9px; align-items: center; padding: 8px 10px; border-radius: 7px; margin-bottom: 6px; font-size: 11.5px; color: var(--ink2); border: 1px solid; }
+.ext-item:last-child { margin-bottom: 0; }
+.ext-item .ei-icon { font-size: 16px; flex-shrink: 0; }
+.ext-item .ei-name { font-weight: 600; display: block; font-size: 11.5px; }
+.ext-item .ei-role { font-size: 10.5px; color: var(--muted); font-family: 'IBM Plex Mono', monospace; }
+.ext-item.llm  { background: var(--org-bg);  border-color: var(--org-bd);  }
+.ext-item.db   { background: var(--blue-bg); border-color: var(--blue-bd); }
+.ext-item.prov { background: var(--teal-bg); border-color: var(--teal-bd); }
+.ext-item.ins  { background: var(--warn-bg); border-color: var(--warn-bd); }
+
+/* diversity prism */
+.prism-box { background: var(--pur-bg); border: 1px solid var(--pur-bd); border-radius: 8px; padding: 10px 12px; margin-top: 6px; }
+.prism-title { font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--purple); margin-bottom: 7px; }
+.prism-row { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+.prism-row:last-child { margin-bottom: 0; }
+.prism-name { font-size: 10.5px; color: var(--ink2); width: 62px; flex-shrink: 0; font-family: 'IBM Plex Mono', monospace; }
+.prism-bar-wrap { flex: 1; height: 5px; background: rgba(90,61,143,0.1); border-radius: 3px; overflow: hidden; }
+.prism-bar { height: 100%; border-radius: 3px; background: var(--purple); opacity: 0.6; }
+.prism-score { font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; color: var(--purple); width: 32px; text-align: right; }
+
+/* meds list compact */
+.meds-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-top: 2px; }
+.med-chip { font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; padding: 3px 7px; border-radius: 4px; background: var(--bg); border: 1px solid var(--rule); color: var(--ink2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.med-chip.flagged { background: #fdf2f2; border-color: #e0b4b4; color: #8b3535; font-weight: 500; }
+.med-chip.caution { background: var(--warn-bg); border-color: var(--warn-bd); color: var(--warn); font-weight: 500; }
+
+/* ── OUTCOME ── */
+.outcome {
+  margin-top: 18px;
+  background: var(--white);
+  border: 1.5px solid var(--grn-bd);
+  border-left: 4px solid var(--green);
+  border-radius: 10px;
+  padding: 16px 22px;
+}
+.oc-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.oc-icon-big { font-size: 22px; }
+.oc-label { font-family: 'IBM Plex Mono', monospace; font-size: 8.5px; letter-spacing: 2px; text-transform: uppercase; color: var(--green); margin-bottom: 2px; }
+.oc-title { font-size: 13px; font-weight: 600; color: var(--ink); }
+.oc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.oc-card { background: var(--grn-bg); border: 1px solid var(--grn-bd); border-radius: 8px; padding: 11px 13px; }
+.oc-card-icon { font-size: 18px; margin-bottom: 5px; }
+.oc-card-title { font-size: 11.5px; font-weight: 600; color: var(--ink); margin-bottom: 3px; }
+.oc-card-desc { font-size: 10.5px; color: var(--muted); line-height: 1.45; }
+
+/* ── AIMS ROW ── */
+.aims-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 22px; padding-top: 22px; border-top: 1.5px solid var(--rule); }
+.aim-card { background: var(--white); border: 1px solid var(--rule); border-radius: 10px; padding: 16px; position: relative; overflow: hidden; }
+.aim-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+.aim-card.a1::before { background: var(--blue); }
+.aim-card.a2::before { background: var(--purple); }
+.aim-card.a3::before { background: var(--teal); }
+.aim-num { font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; padding: 2px 8px; border-radius: 3px; display: inline-block; font-weight: 500; }
+.a1 .aim-num { color: var(--blue);   background: var(--blue-bg);  border: 1px solid var(--blue-bd); }
+.a2 .aim-num { color: var(--purple); background: var(--pur-bg);   border: 1px solid var(--pur-bd);  }
+.a3 .aim-num { color: var(--teal);   background: var(--teal-bg);  border: 1px solid var(--teal-bd); }
+.aim-title { font-family: 'Playfair Display', serif; font-size: 13px; font-weight: 700; margin-bottom: 6px; color: var(--ink); line-height: 1.3; }
+.aim-novel { font-size: 11px; color: var(--muted); line-height: 1.55; }
+.aim-novel strong { color: var(--ink2); font-weight: 500; }
+
+@keyframes rise { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+.page > * { animation: rise .6s ease both; }
+.alert-bar  { animation-delay: .06s; }
+.main       { animation-delay: .12s; }
+.outcome    { animation-delay: .20s; }
+.aims-row   { animation-delay: .28s; }
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- HEADER -->
+<div class="header">
+  <div class="h-left">
+    <div class="eyebrow">SMDT Case Study 2 — Polypharmacy &amp; Multi-Specialist Coordination</div>
+    <h1>Sovereign Medical Digital Twin <span>(SMDT)</span></h1>
+  </div>
+  <div class="h-right">
+    Cross-specialist information silos · Drug interaction detection<br>
+    <strong style="color:var(--ink);">The only system with a complete view of this patient</strong>
+  </div>
+</div>
+
+<!-- PATIENT CASE BAR -->
+<div class="case-bar">
+  <div class="cb-icon">👴</div>
+  <div class="cb-info">
+    <div class="cb-title">Patient: 78-year-old male · Heart Failure (HFrEF, EF 38%) + Type 2 Diabetes + Stage 3b CKD · Lives alone · Daughter overseas</div>
+    <div class="cb-pills">
+      <span class="pill warn">💊 11 active medications</span>
+      <span class="pill">❤️ Cardiology: Dr. Chen</span>
+      <span class="pill blue">🩸 Endocrinology: Dr. Park</span>
+      <span class="pill purple">🫘 Nephrology: Dr. Osei</span>
+      <span class="pill teal">🏠 Lives alone · Low mobility</span>
+      <span class="pill grey">🚗 No personal transport</span>
+      <span class="pill grey">📅 3 separate clinic schedules</span>
+      <span class="pill green">🏦 Medicare + Medigap Plan G</span>
+    </div>
+  </div>
+  <div class="cb-goal">
+    <div class="cg-label">Patient's Situation</div>
+    <div class="cg-text">3 doctors, none aware of each other's latest prescriptions. Patient confused, exhausted, and at risk.</div>
+  </div>
+</div>
+
+<!-- ALERT BAR -->
+<div class="alert-bar">
+  <div class="ab-icon">⚠️</div>
+  <div>
+    <div class="ab-title">The Core Problem SMDT Solves</div>
+    <div class="ab-text">
+      Dr. Park (endocrinology) just added <strong>empagliflozin (SGLT2i)</strong> — unaware that eGFR is 34 mL/min (below safe threshold) and that two existing cardiac meds create a <strong>compounded QTc prolongation risk</strong>. No single doctor has the full picture. The patient cannot navigate this alone.
+    </div>
+  </div>
+</div>
+
+<!-- MAIN 3-COLUMN -->
+<div class="main">
+
+  <!-- LEFT: SMDT CORE -->
+  <div class="smdt-col">
+    <div class="smdt-top">
+      <div class="st-eyebrow">On-Device · Fully Private</div>
+      <div class="st-title">SMDT Core</div>
+      <div class="st-sub">The only system with a complete view</div>
+    </div>
+
+    <!-- memory reasoning -->
+    <div class="mem-section">
+      <div class="sec-tag tag-blue">Aim 1 · Memory &amp; Reasoning</div>
+      <div class="mem-title">Unified clinical reasoning across all providers</div>
+
+      <div class="mem-thought">
+        <div class="mt-label">Medication Cross-Reference</div>
+        Local model holds all 11 prescriptions from 3 providers. Detects empagliflozin newly added by Dr. Park — cross-references against current eGFR 34 mL/min. <strong>FDA contraindication: SGLT2i not recommended below eGFR 45.</strong>
+      </div>
+
+      <div class="mem-thought danger">
+        <div class="mt-label">⚠ QTc Risk Stack Detected</div>
+        Amiodarone (cardiac) + ondansetron (PRN antiemetic) + new empagliflozin interaction pathway → compounded QTc prolongation risk. No single prescriber flagged this. Baseline QTc was 448ms at last ECG (3 months ago).
+      </div>
+
+      <div class="mem-thought warn">
+        <div class="mt-label">Functional &amp; Logistical Context</div>
+        Patient: NYHA Class II, slow ambulation, fatigue with exertion. Last hospitalization 4 months ago (acute decompensation). Lives alone — no caregiver for adverse event response. Clinic visits require medical transport booked 72h in advance.
+      </div>
+
+      <div class="mem-thought">
+        <div class="mt-label">Insurance &amp; Coverage Reasoning</div>
+        Medicare Part D covers empagliflozin Tier 3 — but PA required for off-label dose adjustment. Medigap Plan G covers specialist co-pays. Telehealth eligible for all 3 providers → reduces transport burden for urgent coordination call.
+      </div>
+
+      <div class="uq-box">
+        <div class="ub-label">⚡ UQ Trigger</div>
+        <div class="ub-text">Drug safety conflict confirmed locally. Coordinating 3 physicians + pharmacy intervention + insurance PA exceeds single-agent local capacity. Escalate to Protective Mind.</div>
+      </div>
+    </div>
+
+    <!-- agent -->
+    <div class="agent-section">
+      <div class="sec-tag tag-purple">Aim 2+3 · Protective Mind</div>
+      <div class="agent-title">Agent capabilities for this case</div>
+      <div class="agent-cap"><span class="ac-icon">🛡️</span> De-identifies all queries — shares clinical pattern, not patient identity</div>
+      <div class="agent-cap"><span class="ac-icon">🔄</span> Coordinates across 3 doctors simultaneously — no patient effort required</div>
+      <div class="agent-cap"><span class="ac-icon">📅</span> Aware of patient's mobility limits &amp; schedules telehealth to minimize travel</div>
+      <div class="agent-cap"><span class="ac-icon">📋</span> Tracks which physician "owns" each decision and routes accordingly</div>
+    </div>
+  </div>
+
+  <!-- MIDDLE: INTERACTION LOOP -->
+  <div class="loop-col">
+    <div class="loop-header">
+      <div class="lh-title">Multi-Turn Agentic Interaction Loop</div>
+      <div class="lh-sub">SMDT coordinates across 3 physicians, a pharmacy, and 3 specialist LLMs</div>
+    </div>
+
+    <!-- T1 -->
+    <div class="exchange">
+      <div class="ex-turn-label">
+        <div class="ex-num" style="background:var(--blue);">1</div>
+        <div class="ex-title">Drug Interaction Verification</div>
+      </div>
+      <div class="ex-out">
+        <span class="ex-dir dir-out">Query →</span>
+        <div class="ex-text">Med-PaLM + DrugBank: <strong>SGLT2i contraindication at eGFR &lt;45</strong>, and QTc risk profile for amiodarone + ondansetron combination in elderly HFrEF patient.</div>
+      </div>
+      <div class="ex-in">
+        <span class="ex-dir dir-in">← Return</span>
+        <div class="ex-text"><span class="flag">⚠ Confirmed:</span> empagliflozin contraindicated at eGFR 34. QTc risk: amiodarone + ondansetron = <strong>high-risk combination</strong> (CredibleMeds Category X). Immediate prescriber review indicated.</div>
+      </div>
+    </div>
+    <div class="ex-divider"></div>
+
+    <!-- T2 -->
+    <div class="exchange">
+      <div class="ex-turn-label">
+        <div class="ex-num" style="background:var(--purple);">2</div>
+        <div class="ex-title">Alert Dr. Park (Endocrinology) — Prescriber of SGLT2i</div>
+      </div>
+      <div class="ex-out">
+        <span class="ex-dir dir-act">Act →</span>
+        <div class="ex-text">Auto-draft urgent clinical alert to Dr. Park: <strong>de-identified renal function summary + contraindication evidence</strong>. Request medication hold and alternative glycemic strategy. Schedule telehealth within 48h (patient transport noted).</div>
+      </div>
+      <div class="ex-in">
+        <span class="ex-dir dir-in">← Return</span>
+        <div class="ex-text">Dr. Park acknowledges. <strong>Empagliflozin hold placed.</strong> Requests SMDT to query alternative agents safe at eGFR 34 — asks for renal-adjusted insulin or linagliptin options.</div>
+      </div>
+    </div>
+    <div class="ex-divider"></div>
+
+    <!-- T3 -->
+    <div class="exchange">
+      <div class="ex-turn-label">
+        <div class="ex-num" style="background:var(--purple);">3</div>
+        <div class="ex-title">Alert Dr. Chen (Cardiology) — QTc Risk</div>
+      </div>
+      <div class="ex-out">
+        <span class="ex-dir dir-act">Act →</span>
+        <div class="ex-text">Draft alert to Dr. Chen: <strong>QTc concern with amiodarone + ondansetron</strong>. Share last ECG result (448ms) from local memory. Request guidance: discontinue ondansetron or substitute antiemetic? Copy Dr. Park for awareness.</div>
+      </div>
+      <div class="ex-in">
+        <span class="ex-dir dir-in">← Return</span>
+        <div class="ex-text">Dr. Chen: <strong>Replace ondansetron with metoclopramide</strong> (lower QTc risk). Requests repeat ECG within 2 weeks. SMDT books telehealth ECG review — notes patient needs transport arranged 72h ahead.</div>
+      </div>
+    </div>
+    <div class="ex-divider"></div>
+
+    <!-- T4 -->
+    <div class="exchange">
+      <div class="ex-turn-label">
+        <div class="ex-num" style="background:var(--warn);">4</div>
+        <div class="ex-title">Consult Dr. Osei (Nephrology) + LLM Diversity Check</div>
+      </div>
+      <div class="ex-out">
+        <span class="ex-dir dir-out">Query →</span>
+        <div class="ex-text">Dr. Osei briefed on full medication reconciliation. Parallel Diversity Prism: <strong>GPT · Med-PaLM · Claude</strong> independently recommend safest glycemic agent at eGFR 34 with concurrent HFrEF and amiodarone.</div>
+      </div>
+      <div class="ex-in">
+        <span class="ex-dir dir-in">← Return</span>
+        <div class="ex-text">All 3 LLMs converge on <strong>linagliptin</strong> (DPP-4i, renal-safe, no QTc interaction). Dr. Osei concurs and flags: <strong>metformin dose should also be halved</strong> at current eGFR — adds to reconciliation list.</div>
+      </div>
+    </div>
+    <div class="ex-divider"></div>
+
+    <!-- T5 -->
+    <div class="exchange">
+      <div class="ex-turn-label">
+        <div class="ex-num" style="background:var(--teal);">5</div>
+        <div class="ex-title">Pharmacy Reconciliation + Insurance PA</div>
+      </div>
+      <div class="ex-out">
+        <span class="ex-dir dir-act">Act →</span>
+        <div class="ex-text">SMDT drafts consolidated medication change order to pharmacy: <strong>stop empagliflozin, stop ondansetron, add linagliptin, halve metformin</strong>. Auto-fills Medicare PA form for linagliptin using local insurance data.</div>
+      </div>
+      <div class="ex-in">
+        <span class="ex-dir dir-in">← Return</span>
+        <div class="ex-text">Pharmacy confirms reconciliation. PA approved (linagliptin Tier 2 under Plan G). SMDT schedules follow-up: telehealth ECG review in 14 days + renal panel in 30 days. <strong>Patient notified in plain language.</strong></div>
+      </div>
+    </div>
+    <div class="ex-divider"></div>
+
+    <!-- T6 -->
+    <div class="exchange">
+      <div class="ex-turn-label">
+        <div class="ex-num" style="background:var(--green);">6</div>
+        <div class="ex-title">Family Briefing + Local Memory Update</div>
+      </div>
+      <div class="ex-out">
+        <span class="ex-dir dir-act">Act →</span>
+        <div class="ex-text">Draft plain-language summary email to patient's daughter (overseas): medication changes, safety rationale, upcoming appointments. Update local memory baseline with new med list, follow-up schedule, and drug interaction flags.</div>
+      </div>
+      <div class="ex-in">
+        <span class="ex-dir dir-done">✓ Done</span>
+        <div class="ex-text">Daughter informed. All 3 physicians on shared record. <strong>Zero unresolved conflicts</strong> in current medication list. SMDT continues monitoring for new prescriptions — will re-run reconciliation on any change.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RIGHT: EXTERNAL WORLD -->
+  <div class="ext-col">
+    <div class="ext-top">
+      <div class="et-eyebrow">Anonymized Access Only</div>
+      <div class="et-title">External World</div>
+      <div class="et-sub">No raw PII ever transmitted</div>
+    </div>
+
+    <div class="ext-section">
+      <div class="ext-section-title">Treating Physicians (3 Specialists)</div>
+      <div class="ext-item prov"><span class="ei-icon">❤️</span><div><span class="ei-name">Dr. Chen · Cardiology</span><span class="ei-role">HFrEF management · QTc decision</span></div></div>
+      <div class="ext-item prov"><span class="ei-icon">🩸</span><div><span class="ei-name">Dr. Park · Endocrinology</span><span class="ei-role">Glycemic control · SGLT2i prescriber</span></div></div>
+      <div class="ext-item prov"><span class="ei-icon">🫘</span><div><span class="ei-name">Dr. Osei · Nephrology</span><span class="ei-role">CKD staging · Renal drug dosing</span></div></div>
+    </div>
+
+    <div class="ext-section">
+      <div class="ext-section-title">Specialist AI Models</div>
+      <div class="ext-item llm"><span class="ei-icon">🤖</span><div><span class="ei-name">GPT-4o</span><span class="ei-role">Drug interaction reasoning</span></div></div>
+      <div class="ext-item llm"><span class="ei-icon">🧬</span><div><span class="ei-name">Med-PaLM 2</span><span class="ei-role">Clinical pharmacology · EHR</span></div></div>
+      <div class="ext-item llm"><span class="ei-icon">📚</span><div><span class="ei-name">Claude (Specialist)</span><span class="ei-role">Geriatric medicine · Polypharmacy</span></div></div>
+      <div class="prism-box">
+        <div class="prism-title">🔺 Diversity Prism — glycemic agent</div>
+        <div class="prism-row"><span class="prism-name">GPT</span><div class="prism-bar-wrap"><div class="prism-bar" style="width:78%;"></div></div><span class="prism-score">Δ0.78</span></div>
+        <div class="prism-row"><span class="prism-name">Med-PaLM</span><div class="prism-bar-wrap"><div class="prism-bar" style="width:75%;"></div></div><span class="prism-score">Δ0.75</span></div>
+        <div class="prism-row"><span class="prism-name">Claude</span><div class="prism-bar-wrap"><div class="prism-bar" style="width:71%;"></div></div><span class="prism-score">Δ0.71</span></div>
+      </div>
+    </div>
+
+    <div class="ext-section">
+      <div class="ext-section-title">Safety &amp; Admin Systems</div>
+      <div class="ext-item db"><span class="ei-icon">⚗️</span><div><span class="ei-name">DrugBank · CredibleMeds</span><span class="ei-role">Interaction DB · QTc risk registry</span></div></div>
+      <div class="ext-item ins"><span class="ei-icon">🏦</span><div><span class="ei-name">Medicare Part D · Medigap G</span><span class="ei-role">PA submission · Tier &amp; coverage check</span></div></div>
+      <div class="ext-item prov"><span class="ei-icon">💊</span><div><span class="ei-name">Pharmacy System</span><span class="ei-role">Reconciliation · Dispensing update</span></div></div>
+    </div>
+
+    <div class="ext-section">
+      <div class="ext-section-title">Current Medications (11)</div>
+      <div class="meds-grid">
+        <div class="med-chip flagged">⚠ Empagliflozin</div>
+        <div class="med-chip caution">⚡ Amiodarone</div>
+        <div class="med-chip flagged">⚠ Ondansetron</div>
+        <div class="med-chip caution">↓ Metformin ×0.5</div>
+        <div class="med-chip">Lisinopril</div>
+        <div class="med-chip">Furosemide</div>
+        <div class="med-chip">Carvedilol</div>
+        <div class="med-chip">Spironolactone</div>
+        <div class="med-chip">Atorvastatin</div>
+        <div class="med-chip">Aspirin</div>
+        <div class="med-chip">Pantoprazole</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<!-- OUTCOME -->
+<div class="outcome">
+  <div class="oc-header">
+    <div class="oc-icon-big">✅</div>
+    <div>
+      <div class="oc-label">Patient Outcome — Delivered Autonomously, Without Patient Navigation</div>
+      <div class="oc-title">Drug conflict resolved · All 3 physicians aligned · Pharmacy updated · Insurance approved · Family informed · Follow-up scheduled</div>
+    </div>
+  </div>
+  <div class="oc-grid">
+    <div class="oc-card">
+      <div class="oc-card-icon">🛡️</div>
+      <div class="oc-card-title">Safety Crisis Averted</div>
+      <div class="oc-card-desc">SGLT2i contraindication caught before first dose. QTc risk stack identified and resolved. Potentially life-threatening — detected only because SMDT held the complete picture.</div>
+    </div>
+    <div class="oc-card">
+      <div class="oc-card-icon">✉️</div>
+      <div class="oc-card-title">3 Physicians Coordinated</div>
+      <div class="oc-card-desc">Targeted alerts drafted for each doctor. No redundant communication. Each physician received only what was relevant — SMDT orchestrated without exposing full record.</div>
+    </div>
+    <div class="oc-card">
+      <div class="oc-card-icon">📄</div>
+      <div class="oc-card-title">PA &amp; Pharmacy Handled</div>
+      <div class="oc-card-desc">Medicare prior authorization auto-completed. Pharmacy reconciliation sent. Patient never needed to call, explain, or re-navigate the system.</div>
+    </div>
+    <div class="oc-card">
+      <div class="oc-card-icon">👨‍👩‍👧</div>
+      <div class="oc-card-title">Patient &amp; Family Supported</div>
+      <div class="oc-card-desc">Plain-language update sent to daughter. Telehealth follow-ups scheduled respecting patient's mobility constraints and 72h transport booking window.</div>
+    </div>
+  </div>
+</div>
+
+<!-- AIMS ROW -->
+<div class="aims-row">
+  <div class="aim-card a1">
+    <div class="aim-num">Aim 1 · Demonstrated</div>
+    <div class="aim-title">Unified Longitudinal Memory Across Silos</div>
+    <div class="aim-novel">No single physician had the full picture. SMDT's <strong>on-device longitudinal baseline</strong> — integrating prescriptions from 3 separate providers, lab trends, functional status, and logistical constraints — made the contradiction visible. This is only possible with a persistent, cross-specialist memory model.</div>
+  </div>
+  <div class="aim-card a2">
+    <div class="aim-num">Aim 2 · Demonstrated</div>
+    <div class="aim-title">Context-Aware Privacy Mediation</div>
+    <div class="aim-novel">Each physician received a <strong>targeted, de-identified clinical summary</strong> — no doctor saw another doctor's full notes, and no raw patient record was transmitted externally. The agent's game-theoretic disclosure adapted per recipient, <strong>sharing exactly what was clinically necessary and nothing more</strong>.</div>
+  </div>
+  <div class="aim-card a3">
+    <div class="aim-num">Aim 3 · Demonstrated</div>
+    <div class="aim-title">Autonomous Coordination &amp; Execution</div>
+    <div class="aim-novel">SMDT autonomously managed a <strong>6-turn, 7-party coordination loop</strong> — without the patient making a single phone call. Diversity Prism confirmed LLM consensus on the safe alternative. The agent then handled pharmacy, insurance, scheduling, and family communication, <strong>accounting for real-world constraints like mobility and transport windows</strong>.</div>
+  </div>
+</div>
+
+</div>
+</body>
+</html>

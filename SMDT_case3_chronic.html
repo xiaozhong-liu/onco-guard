@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SMDT — Chronic Disease Longitudinal Case</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&family=Playfair+Display:ital,wght@0,700;1,500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:       #f6f4f0;
+  --white:    #ffffff;
+  --ink:      #1c1812;
+  --ink2:     #3d3628;
+  --muted:    #8c8070;
+  --rule:     #e2ddd4;
+
+  --rose:     #8b3560;
+  --rose-bg:  #fdf2f7;
+  --rose-bd:  #ddb0c8;
+
+  --blue:     #1a5c8c;
+  --blue-bg:  #edf3f9;
+  --blue-bd:  #bdd0e2;
+
+  --purple:   #5a3d8f;
+  --pur-bg:   #f1edf9;
+  --pur-bd:   #cabfdf;
+
+  --teal:     #1a7a6e;
+  --teal-bg:  #eaf5f3;
+  --teal-bd:  #9dd0c8;
+
+  --green:    #2a7a4b;
+  --grn-bg:   #edf6f1;
+  --grn-bd:   #a8d4bb;
+
+  --amber:    #8a5c00;
+  --amb-bg:   #fdf6e3;
+  --amb-bd:   #dfc98a;
+
+  --orange:   #b34f1c;
+  --org-bg:   #fdf0e8;
+  --org-bd:   #e2b89a;
+}
+body { background: var(--bg); color: var(--ink); font-family: 'IBM Plex Sans', sans-serif; }
+.page { max-width: 1120px; margin: 0 auto; padding: 44px 44px 60px; }
+
+/* ── HEADER ── */
+.header { border-bottom: 2px solid var(--ink); padding-bottom: 16px; margin-bottom: 28px; display: flex; align-items: flex-end; justify-content: space-between; }
+.h-left .eyebrow { font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 5px; }
+.h-left h1 { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 700; line-height: 1.2; }
+.h-left h1 span { font-style: italic; font-weight: 500; color: var(--muted); }
+.h-right { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--muted); text-align: right; line-height: 1.7; }
+
+/* ── PATIENT CASE BAR ── */
+.case-bar {
+  background: var(--white); border: 1.5px solid var(--rose-bd);
+  border-left: 4px solid var(--rose); border-radius: 10px;
+  padding: 16px 22px; margin-bottom: 16px;
+  display: flex; align-items: flex-start; gap: 20px;
+}
+.cb-icon { font-size: 28px; flex-shrink: 0; padding-top: 2px; }
+.cb-info { flex: 1; }
+.cb-title { font-family: 'Playfair Display', serif; font-size: 14px; font-weight: 700; color: var(--rose); margin-bottom: 7px; }
+.cb-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+.pill { display: inline-flex; align-items: center; gap: 5px; font-family: 'IBM Plex Mono', monospace; font-size: 10px; padding: 3px 9px; border-radius: 4px; background: var(--rose-bg); border: 1px solid var(--rose-bd); color: var(--rose); }
+.pill.blue   { background: var(--blue-bg); border-color: var(--blue-bd); color: var(--blue); }
+.pill.purple { background: var(--pur-bg);  border-color: var(--pur-bd);  color: var(--purple); }
+.pill.teal   { background: var(--teal-bg); border-color: var(--teal-bd); color: var(--teal); }
+.pill.green  { background: var(--grn-bg);  border-color: var(--grn-bd);  color: var(--green); }
+.pill.amber  { background: var(--amb-bg);  border-color: var(--amb-bd);  color: var(--amber); }
+.pill.grey   { background: var(--bg); border-color: var(--rule); color: var(--muted); }
+.cb-goal { flex-shrink: 0; background: var(--rose-bg); border: 1px solid var(--rose-bd); border-radius: 8px; padding: 10px 16px; text-align: center; max-width: 210px; }
+.cb-goal .cg-label { font-family: 'IBM Plex Mono', monospace; font-size: 8.5px; letter-spacing: 2px; text-transform: uppercase; color: var(--rose); margin-bottom: 4px; }
+.cb-goal .cg-text  { font-size: 11.5px; color: var(--ink2); line-height: 1.45; font-weight: 500; }
+
+/* ── DISCOVERY ALERT ── */
+.discovery-bar {
+  background: var(--white);
+  border: 1.5px solid var(--amb-bd);
+  border-left: 4px solid var(--amber);
+  border-radius: 10px;
+  padding: 14px 20px;
+  margin-bottom: 20px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 16px;
+  align-items: center;
+}
+.db-icon { font-size: 22px; flex-shrink: 0; }
+.db-body .db-label { font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--amber); margin-bottom: 4px; font-weight: 500; }
+.db-body .db-text { font-size: 12px; color: var(--ink2); line-height: 1.5; }
+.db-body .db-text strong { color: var(--amber); font-weight: 600; }
+.db-badge { font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: 1px; text-transform: uppercase; padding: 5px 12px; border-radius: 5px; background: var(--amb-bg); border: 1px solid var(--amb-bd); color: var(--amber); text-align: center; line-height: 1.5; white-space: nowrap; }
+
+/* ── WATCH SIGNAL STRIP ── */
+.signal-strip {
+  background: var(--white);
+  border: 1.5px solid var(--rule);
+  border-radius: 10px;
+  padding: 14px 20px;
+  margin-bottom: 20px;
+  display: flex;
+  gap: 0;
+}
+.signal-strip-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  margin-right: 18px;
+  flex-shrink: 0;
+}
+.signals { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; flex: 1; }
+.sig {
+  background: var(--bg);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  padding: 10px 12px;
+  position: relative;
+  overflow: hidden;
+}
+.sig::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2.5px; }
+.sig.normal::before { background: var(--teal); }
+.sig.warn::before   { background: var(--amber); }
+.sig.flag::before   { background: var(--rose); }
+.sig-icon { font-size: 16px; margin-bottom: 5px; }
+.sig-name { font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 3px; }
+.sig-val { font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 2px; }
+.sig-trend { font-size: 10.5px; line-height: 1.35; }
+.sig-trend.down  { color: var(--rose); }
+.sig-trend.up    { color: var(--amber); }
+.sig-trend.ok    { color: var(--teal); }
+
+/* ── MAIN 3-COLUMN ── */
+.main { display: grid; grid-template-columns: 230px 1fr 260px; gap: 0; align-items: stretch; }
+
+/* LEFT */
+.smdt-col {
+  background: var(--white); border: 1.5px solid var(--rule);
+  border-right: none; border-radius: 12px 0 0 12px;
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.smdt-top { background: var(--ink); padding: 14px 16px; }
+.smdt-top .st-eyebrow { font-family: 'IBM Plex Mono', monospace; font-size: 8.5px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 4px; }
+.smdt-top .st-title { font-family: 'Playfair Display', serif; font-size: 14px; font-weight: 700; color: white; }
+.smdt-top .st-sub { font-size: 10.5px; color: rgba(255,255,255,0.45); margin-top: 3px; font-style: italic; }
+.sec-tag { font-family: 'IBM Plex Mono', monospace; font-size: 8.5px; letter-spacing: 2px; text-transform: uppercase; padding: 2px 8px; border-radius: 3px; display: inline-block; margin-bottom: 10px; font-weight: 500; }
+.tag-blue   { color: var(--blue);   background: var(--blue-bg);  border: 1px solid var(--blue-bd);  }
+.tag-purple { color: var(--purple); background: var(--pur-bg);   border: 1px solid var(--pur-bd);   }
+.tag-rose   { color: var(--rose);   background: var(--rose-bg);  border: 1px solid var(--rose-bd);  }
+.tag-amber  { color: var(--amber);  background: var(--amb-bg);   border: 1px solid var(--amb-bd);   }
+.mem-section { padding: 16px; border-bottom: 1.5px solid var(--rule); flex: 1; }
+.mem-title { font-size: 12.5px; font-weight: 600; color: var(--blue); margin-bottom: 8px; }
+.mem-thought { background: var(--blue-bg); border: 1px solid var(--blue-bd); border-left: 3px solid var(--blue); border-radius: 0 6px 6px 0; padding: 8px 10px; font-size: 11px; color: var(--ink2); line-height: 1.5; margin-bottom: 6px; }
+.mem-thought .mt-label { font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--blue); margin-bottom: 3px; }
+.mem-thought.warn { background: var(--amb-bg); border-color: var(--amb-bd); border-left-color: var(--amber); }
+.mem-thought.warn .mt-label { color: var(--amber); }
+.mem-thought.flag { background: var(--rose-bg); border-color: var(--rose-bd); border-left-color: var(--rose); }
+.mem-thought.flag .mt-label { color: var(--rose); }
+.uq-box { background: var(--pur-bg); border: 1px solid var(--pur-bd); border-radius: 7px; padding: 9px 11px; margin-top: 10px; }
+.uq-box .ub-label { font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--purple); margin-bottom: 3px; }
+.uq-box .ub-text { font-size: 11px; color: var(--ink2); line-height: 1.45; }
+.agent-section { padding: 16px; }
+.agent-title { font-size: 12.5px; font-weight: 600; color: var(--purple); margin-bottom: 10px; }
+.agent-cap { display: flex; gap: 7px; align-items: flex-start; font-size: 11px; color: var(--ink2); line-height: 1.4; margin-bottom: 7px; }
+.agent-cap .ac-icon { font-size: 13px; flex-shrink: 0; }
+
+/* MIDDLE */
+.loop-col {
+  background: var(--bg); border-top: 1.5px solid var(--rule); border-bottom: 1.5px solid var(--rule);
+  padding: 16px 18px; display: flex; flex-direction: column; position: relative;
+}
+.loop-col::before {
+  content: ''; position: absolute; left: 50%; top: 52px; bottom: 60px;
+  width: 1px; background: linear-gradient(180deg, var(--blue) 0%, var(--purple) 35%, var(--rose) 65%, var(--green) 100%);
+  opacity: 0.15; transform: translateX(-50%);
+}
+.loop-header { text-align: center; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid var(--rule); }
+.lh-title { font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--purple); }
+.lh-sub { font-size: 11px; color: var(--muted); margin-top: 3px; }
+.exchange { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; position: relative; z-index: 1; }
+.ex-turn-label { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.ex-num { width: 22px; height: 22px; flex-shrink: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; font-weight: 500; color: white; }
+.ex-title { font-size: 11px; font-weight: 600; color: var(--ink); }
+.ex-out, .ex-in { border-radius: 7px; padding: 8px 11px; font-size: 11px; line-height: 1.45; color: var(--ink2); display: flex; gap: 8px; align-items: flex-start; }
+.ex-out { background: var(--white); border: 1px solid var(--rule); margin-left: 12px; }
+.ex-in  { background: var(--white); border: 1px solid var(--rule); margin-right: 12px; }
+.ex-dir { flex-shrink: 0; font-family: 'IBM Plex Mono', monospace; font-size: 8.5px; letter-spacing: 1px; text-transform: uppercase; padding: 2px 7px; border-radius: 3px; white-space: nowrap; margin-top: 1px; }
+.dir-out  { background: var(--pur-bg);  border: 1px solid var(--pur-bd);  color: var(--purple); }
+.dir-in   { background: var(--org-bg);  border: 1px solid var(--org-bd);  color: var(--orange); }
+.dir-act  { background: var(--blue-bg); border: 1px solid var(--blue-bd); color: var(--blue); }
+.dir-rose { background: var(--rose-bg); border: 1px solid var(--rose-bd); color: var(--rose); }
+.dir-done { background: var(--grn-bg);  border: 1px solid var(--grn-bd);  color: var(--green); }
+.ex-text { flex: 1; }
+.ex-text strong { font-weight: 600; color: var(--ink); }
+.ex-text .insight { color: var(--amber); font-weight: 600; }
+.ex-divider { height: 1px; background: var(--rule); margin: 8px 0; }
+
+/* RIGHT */
+.ext-col { background: var(--white); border: 1.5px solid var(--rule); border-left: none; border-radius: 0 12px 12px 0; overflow: hidden; display: flex; flex-direction: column; }
+.ext-top { background: var(--rose); padding: 14px 16px; }
+.ext-top .et-eyebrow { font-family: 'IBM Plex Mono', monospace; font-size: 8.5px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.5); margin-bottom: 4px; }
+.ext-top .et-title { font-family: 'Playfair Display', serif; font-size: 14px; font-weight: 700; color: white; }
+.ext-top .et-sub { font-size: 10.5px; color: rgba(255,255,255,0.5); margin-top: 3px; font-style: italic; }
+.ext-section { padding: 13px 16px; border-bottom: 1.5px solid var(--rule); }
+.ext-section:last-child { border-bottom: none; }
+.ext-section-title { font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 9px; }
+.ext-item { display: flex; gap: 9px; align-items: center; padding: 8px 10px; border-radius: 7px; margin-bottom: 6px; font-size: 11.5px; color: var(--ink2); border: 1px solid; }
+.ext-item:last-child { margin-bottom: 0; }
+.ext-item .ei-icon { font-size: 16px; flex-shrink: 0; }
+.ext-item .ei-name { font-weight: 600; display: block; font-size: 11.5px; }
+.ext-item .ei-role { font-size: 10.5px; color: var(--muted); font-family: 'IBM Plex Mono', monospace; }
+.ext-item.llm  { background: var(--org-bg);  border-color: var(--org-bd);  }
+.ext-item.prov { background: var(--teal-bg); border-color: var(--teal-bd); }
+.ext-item.db   { background: var(--blue-bg); border-color: var(--blue-bd); }
+.prism-box { background: var(--pur-bg); border: 1px solid var(--pur-bd); border-radius: 8px; padding: 10px 12px; margin-top: 6px; }
+.prism-title { font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--purple); margin-bottom: 7px; }
+.prism-row { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+.prism-row:last-child { margin-bottom: 0; }
+.prism-name { font-size: 10.5px; color: var(--ink2); width: 62px; flex-shrink: 0; font-family: 'IBM Plex Mono', monospace; }
+.prism-bar-wrap { flex: 1; height: 5px; background: rgba(90,61,143,0.1); border-radius: 3px; overflow: hidden; }
+.prism-bar { height: 100%; border-radius: 3px; background: var(--purple); opacity: 0.6; }
+.prism-score { font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; color: var(--purple); width: 32px; text-align: right; }
+
+/* OUTCOME */
+.outcome { margin-top: 18px; background: var(--white); border: 1.5px solid var(--grn-bd); border-left: 4px solid var(--green); border-radius: 10px; padding: 16px 22px; }
+.oc-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.oc-icon-big { font-size: 22px; }
+.oc-label { font-family: 'IBM Plex Mono', monospace; font-size: 8.5px; letter-spacing: 2px; text-transform: uppercase; color: var(--green); margin-bottom: 2px; }
+.oc-title { font-size: 13px; font-weight: 600; color: var(--ink); }
+.oc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.oc-card { background: var(--grn-bg); border: 1px solid var(--grn-bd); border-radius: 8px; padding: 11px 13px; }
+.oc-card-icon { font-size: 18px; margin-bottom: 5px; }
+.oc-card-title { font-size: 11.5px; font-weight: 600; color: var(--ink); margin-bottom: 3px; }
+.oc-card-desc { font-size: 10.5px; color: var(--muted); line-height: 1.45; }
+
+/* AIMS */
+.aims-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 22px; padding-top: 22px; border-top: 1.5px solid var(--rule); }
+.aim-card { background: var(--white); border: 1px solid var(--rule); border-radius: 10px; padding: 16px; position: relative; overflow: hidden; }
+.aim-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+.aim-card.a1::before { background: var(--blue); }
+.aim-card.a2::before { background: var(--purple); }
+.aim-card.a3::before { background: var(--rose); }
+.aim-num { font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; padding: 2px 8px; border-radius: 3px; display: inline-block; font-weight: 500; }
+.a1 .aim-num { color: var(--blue);   background: var(--blue-bg); border: 1px solid var(--blue-bd); }
+.a2 .aim-num { color: var(--purple); background: var(--pur-bg);  border: 1px solid var(--pur-bd);  }
+.a3 .aim-num { color: var(--rose);   background: var(--rose-bg); border: 1px solid var(--rose-bd); }
+.aim-title { font-family: 'Playfair Display', serif; font-size: 13px; font-weight: 700; margin-bottom: 6px; color: var(--ink); line-height: 1.3; }
+.aim-novel { font-size: 11px; color: var(--muted); line-height: 1.55; }
+.aim-novel strong { color: var(--ink2); font-weight: 500; }
+
+@keyframes rise { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+.page > * { animation: rise .6s ease both; }
+.discovery-bar { animation-delay: .05s; }
+.signal-strip  { animation-delay: .09s; }
+.main          { animation-delay: .14s; }
+.outcome       { animation-delay: .22s; }
+.aims-row      { animation-delay: .30s; }
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- HEADER -->
+<div class="header">
+  <div class="h-left">
+    <div class="eyebrow">SMDT Case Study 3 — Longitudinal Cross-Domain Pattern Detection</div>
+    <h1>Sovereign Medical Digital Twin <span>(SMDT)</span></h1>
+  </div>
+  <div class="h-right">
+    Consumer wearable × EHR × mental health records<br>
+    <strong style="color:var(--ink);">A pattern no single doctor could have seen</strong>
+  </div>
+</div>
+
+<!-- PATIENT CASE BAR -->
+<div class="case-bar">
+  <div class="cb-icon">👩</div>
+  <div class="cb-info">
+    <div class="cb-title">Patient: 35-year-old female · Type 1 Diabetes (insulin pump) · Major Depressive Disorder · Currently planning pregnancy</div>
+    <div class="cb-pills">
+      <span class="pill">💉 Insulin pump · T1D ×12 years</span>
+      <span class="pill purple">💊 Duloxetine 60mg · MDD</span>
+      <span class="pill blue">🩺 Endocrinology: Dr. Kim</span>
+      <span class="pill teal">🧠 Psychiatry: Dr. Navarro</span>
+      <span class="pill green">🤱 OB/GYN: Dr. Santos</span>
+      <span class="pill amber">⌚ Apple Watch Series 9 · 6-month data</span>
+      <span class="pill grey">📅 Menstrual cycle tracked · Regular 28-day</span>
+    </div>
+  </div>
+  <div class="cb-goal">
+    <div class="cg-label">Patient's Goal</div>
+    <div class="cg-text">Optimize health before pregnancy — currently managed by 3 doctors who share no data</div>
+  </div>
+</div>
+
+<!-- DISCOVERY ALERT -->
+<div class="discovery-bar">
+  <div class="db-icon">🔍</div>
+  <div class="db-body">
+    <div class="db-label">SMDT Proactive Discovery — Patient Did Not Ask</div>
+    <div class="db-text">
+      After 6 months of continuous wearable monitoring, SMDT autonomously detected a recurring pattern: every luteal phase (days 15–28), <strong>HRV drops 25–30%, resting HR rises, deep sleep halves, and skin temperature fluctuates abnormally</strong> — synchronizing with elevated PHQ-9 scores and increased insulin pump manual corrections in the same weeks. <strong>No physician had noticed this cycle. No clinic visit captured it.</strong>
+    </div>
+  </div>
+  <div class="db-badge">⚠ Proactive Alert<br>Undiscovered<br>6-month pattern</div>
+</div>
+
+<!-- APPLE WATCH SIGNAL STRIP -->
+<div class="signal-strip">
+  <div class="signal-strip-label">Apple Watch · 6-month longitudinal signals</div>
+  <div class="signals">
+    <div class="sig flag">
+      <div class="sig-icon">💓</div>
+      <div class="sig-name">HRV</div>
+      <div class="sig-val">↓ 28%</div>
+      <div class="sig-trend down">Luteal phase drop · Every cycle · Consistent</div>
+    </div>
+    <div class="sig warn">
+      <div class="sig-icon">❤️</div>
+      <div class="sig-name">Resting HR</div>
+      <div class="sig-val">↑ +9 bpm</div>
+      <div class="sig-trend up">Rises days 16–26 · Returns at menstruation</div>
+    </div>
+    <div class="sig flag">
+      <div class="sig-icon">🌙</div>
+      <div class="sig-name">Deep Sleep</div>
+      <div class="sig-val">↓ 52%</div>
+      <div class="sig-trend down">Fragmented luteal nights · Waking 2–4am</div>
+    </div>
+    <div class="sig warn">
+      <div class="sig-icon">🌡️</div>
+      <div class="sig-name">Skin Temp</div>
+      <div class="sig-val">+0.6°C</div>
+      <div class="sig-trend up">Elevated &amp; erratic in luteal phase</div>
+    </div>
+    <div class="sig normal">
+      <div class="sig-icon">🚶</div>
+      <div class="sig-name">Activity</div>
+      <div class="sig-val">↓ 38%</div>
+      <div class="sig-trend ok">Step count falls same window · Fatigue signal</div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN 3-COLUMN -->
+<div class="main">
+
+  <!-- LEFT: SMDT CORE -->
+  <div class="smdt-col">
+    <div class="smdt-top">
+      <div class="st-eyebrow">On-Device · Fully Private</div>
+      <div class="st-title">SMDT Core</div>
+      <div class="st-sub">6 months of continuous learning</div>
+    </div>
+
+    <div class="mem-section">
+      <div class="sec-tag tag-blue">Aim 1 · Memory &amp; Reasoning</div>
+      <div class="mem-title">Cross-domain pattern assembly</div>
+
+      <div class="mem-thought">
+        <div class="mt-label">Temporal Pattern Detection</div>
+        HRV depression, HR elevation, and sleep fragmentation align to a precise 28-day cycle. Peak disruption: days 16–26. Normalized each month at menstruation onset. Pattern confirmed across 6 consecutive cycles.
+      </div>
+
+      <div class="mem-thought warn">
+        <div class="mt-label">Cross-Domain Correlation</div>
+        Psychiatric records: PHQ-9 scores submitted to Dr. Navarro are consistently higher in luteal phase (+4.2 pts avg). Insulin pump logs: manual basal rate adjustments increase 2.3× in same window — autonomic dysregulation affecting insulin sensitivity.
+      </div>
+
+      <div class="mem-thought flag">
+        <div class="mt-label">⚠ Pregnancy Risk Inference</div>
+        If this pattern persists in early pregnancy: luteal-phase-like hormonal profile is sustained for 12+ weeks. Autonomic instability + disrupted sleep + depression exacerbation during first trimester = compounding risk. Must be resolved before conception.
+      </div>
+
+      <div class="mem-thought">
+        <div class="mt-label">Pharmacological Hypothesis</div>
+        Duloxetine (SNRI) inhibits norepinephrine reuptake — can amplify autonomic stress responses. Luteal-phase estrogen withdrawal may potentiate this effect. Temporal dosing adjustment is a testable intervention.
+      </div>
+
+      <div class="uq-box">
+        <div class="ub-label">⚡ UQ Trigger</div>
+        <div class="ub-text">Pattern confirmed. Mechanism hypothesis formed. Clinical validation and intervention design require specialist collaboration across psychiatry, endocrinology, and OB/GYN. Escalate to Protective Mind.</div>
+      </div>
+    </div>
+
+    <div class="agent-section">
+      <div class="sec-tag tag-purple">Aim 2+3 · Protective Mind</div>
+      <div class="agent-title">Agent capabilities for this case</div>
+      <div class="agent-cap"><span class="ac-icon">🔍</span> Proactively surfaces the pattern — patient did not need to ask</div>
+      <div class="agent-cap"><span class="ac-icon">🛡️</span> Shares signal pattern only — no raw wearable data or psychiatric records transmitted</div>
+      <div class="agent-cap"><span class="ac-icon">🔄</span> Coordinates 3 specialists around a single shared clinical question</div>
+      <div class="agent-cap"><span class="ac-icon">🤱</span> Frames all communication around pre-conception safety urgency</div>
+    </div>
+  </div>
+
+  <!-- MIDDLE: LOOP -->
+  <div class="loop-col">
+    <div class="loop-header">
+      <div class="lh-title">Multi-Turn Agentic Interaction Loop</div>
+      <div class="lh-sub">SMDT initiates — patient is informed, not burdened</div>
+    </div>
+
+    <!-- T1 -->
+    <div class="exchange">
+      <div class="ex-turn-label">
+        <div class="ex-num" style="background:var(--blue);">1</div>
+        <div class="ex-title">Literature Verification of Pattern</div>
+      </div>
+      <div class="ex-out">
+        <span class="ex-dir dir-out">Query →</span>
+        <div class="ex-text">Med-PaLM + PubMed: <strong>luteal-phase HRV suppression in T1D women on SNRIs</strong> — is this a recognized clinical phenomenon? Any pre-conception risk data?</div>
+      </div>
+      <div class="ex-in">
+        <span class="ex-dir dir-in">← Return</span>
+        <div class="ex-text"><span class="insight">Pattern confirmed in literature.</span> Luteal-phase autonomic dysregulation is documented in T1D. SNRI + progesterone interaction on norepinephrine pathways is plausible. Pre-conception guidelines recommend HRV stability as a readiness marker.</div>
+      </div>
+    </div>
+    <div class="ex-divider"></div>
+
+    <!-- T2 -->
+    <div class="exchange">
+      <div class="ex-turn-label">
+        <div class="ex-num" style="background:var(--purple);">2</div>
+        <div class="ex-title">Alert Patient + Notify Dr. Navarro (Psychiatry)</div>
+      </div>
+      <div class="ex-out">
+        <span class="ex-dir dir-rose">Alert →</span>
+        <div class="ex-text">Patient notified in plain language: <strong>"SMDT has found a recurring monthly pattern in your Apple Watch data that may be affecting your mood and sleep. Your care team is being consulted."</strong> Draft clinical summary for Dr. Navarro: 6-cycle HRV trend, PHQ-9 correlation, duloxetine timing hypothesis.</div>
+      </div>
+      <div class="ex-in">
+        <span class="ex-dir dir-in">← Return</span>
+        <div class="ex-text">Dr. Navarro: <strong>"This is clinically significant."</strong> Proposes shifting duloxetine dose to morning to reduce nocturnal norepinephrine activity during luteal phase. Requests psychiatry-endocrinology joint review before any medication change.</div>
+      </div>
+    </div>
+    <div class="ex-divider"></div>
+
+    <!-- T3 -->
+    <div class="exchange">
+      <div class="ex-turn-label">
+        <div class="ex-num" style="background:var(--purple);">3</div>
+        <div class="ex-title">Consult Dr. Kim (Endocrinology) — Insulin &amp; Autonomics</div>
+      </div>
+      <div class="ex-out">
+        <span class="ex-dir dir-act">Act →</span>
+        <div class="ex-text">Draft targeted brief for Dr. Kim: <strong>luteal-phase insulin pump adjustment pattern + HRV suppression data</strong>. Ask whether a luteal-phase basal rate protocol adjustment is warranted, and if pre-conception HbA1c target should be tightened given autonomic pattern.</div>
+      </div>
+      <div class="ex-in">
+        <span class="ex-dir dir-in">← Return</span>
+        <div class="ex-text">Dr. Kim confirms: autonomic instability can mask hypoglycemia symptoms — <strong>increases pre-conception risk significantly</strong>. Recommends a luteal-phase specific basal rate increase of 10–15%. Requests SMDT monitor HRV as a proxy for autonomic stability going forward.</div>
+      </div>
+    </div>
+    <div class="ex-divider"></div>
+
+    <!-- T4 -->
+    <div class="exchange">
+      <div class="ex-turn-label">
+        <div class="ex-num" style="background:var(--rose);">4</div>
+        <div class="ex-title">Diversity Prism + OB/GYN Pre-Conception Brief</div>
+      </div>
+      <div class="ex-out">
+        <span class="ex-dir dir-out">Query →</span>
+        <div class="ex-text">Parallel Diversity Prism: <strong>GPT · Med-PaLM · Claude</strong> — does luteal-phase HRV suppression + SNRI + T1D constitute a pre-conception readiness concern? What intervention should precede conception attempt?</div>
+      </div>
+      <div class="ex-in">
+        <span class="ex-dir dir-in">← Return</span>
+        <div class="ex-text">All 3 models recommend: <strong>stabilize autonomic pattern over 2–3 cycles before conception</strong>. Claude diverges: also recommends wearable-based ovulation + HRV monitoring to identify the optimal conception window within each cycle based on autonomic stability score.</div>
+      </div>
+    </div>
+    <div class="ex-divider"></div>
+
+    <!-- T5 -->
+    <div class="exchange">
+      <div class="ex-turn-label">
+        <div class="ex-num" style="background:var(--teal);">5</div>
+        <div class="ex-title">Joint Pre-Conception Plan — 3 Specialists Aligned</div>
+      </div>
+      <div class="ex-out">
+        <span class="ex-dir dir-act">Act →</span>
+        <div class="ex-text">SMDT drafts <strong>joint pre-conception brief</strong> for Dr. Santos (OB/GYN): integrated findings from psychiatry + endocrinology + wearable data. Proposes 3-point plan: duloxetine timing shift, luteal basal rate protocol, and HRV-guided conception window monitoring.</div>
+      </div>
+      <div class="ex-in">
+        <span class="ex-dir dir-in">← Return</span>
+        <div class="ex-text">Dr. Santos: <strong>"Most comprehensive pre-conception brief I've received."</strong> Approves plan. Schedules multi-specialist telehealth with all three providers in 2 weeks. SMDT will continue monitoring and flag if HRV stability is not achieved within 3 cycles.</div>
+      </div>
+    </div>
+    <div class="ex-divider"></div>
+
+    <!-- T6 -->
+    <div class="exchange">
+      <div class="ex-turn-label">
+        <div class="ex-num" style="background:var(--green);">6</div>
+        <div class="ex-title">Ongoing Monitoring + Memory Update</div>
+      </div>
+      <div class="ex-out">
+        <span class="ex-dir dir-act">Act →</span>
+        <div class="ex-text">Set continuous monitoring protocol: track HRV cycle-over-cycle trend, PHQ-9 correlation, and insulin adjustment frequency as proxy metrics for intervention efficacy. Update local memory with new baseline targets.</div>
+      </div>
+      <div class="ex-in">
+        <span class="ex-dir dir-done">✓ Active</span>
+        <div class="ex-text">SMDT now monitors monthly. Will proactively alert patient and care team if pattern does not improve, or if new anomalies emerge. <strong>Patient is preparing for pregnancy with a complete, coordinated clinical picture — for the first time.</strong></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RIGHT: EXTERNAL WORLD -->
+  <div class="ext-col">
+    <div class="ext-top">
+      <div class="et-eyebrow">Anonymized Access Only</div>
+      <div class="et-title">External World</div>
+      <div class="et-sub">No raw wearable or EHR data transmitted</div>
+    </div>
+
+    <div class="ext-section">
+      <div class="ext-section-title">Treating Specialists (3)</div>
+      <div class="ext-item prov"><span class="ei-icon">🧠</span><div><span class="ei-name">Dr. Navarro · Psychiatry</span><span class="ei-role">MDD management · Duloxetine timing</span></div></div>
+      <div class="ext-item prov"><span class="ei-icon">🩺</span><div><span class="ei-name">Dr. Kim · Endocrinology</span><span class="ei-role">T1D · Insulin pump protocol</span></div></div>
+      <div class="ext-item prov"><span class="ei-icon">🤱</span><div><span class="ei-name">Dr. Santos · OB/GYN</span><span class="ei-role">Pre-conception planning · Pregnancy risk</span></div></div>
+    </div>
+
+    <div class="ext-section">
+      <div class="ext-section-title">Specialist AI Models</div>
+      <div class="ext-item llm"><span class="ei-icon">🤖</span><div><span class="ei-name">GPT-4o</span><span class="ei-role">Autonomic physiology reasoning</span></div></div>
+      <div class="ext-item llm"><span class="ei-icon">🧬</span><div><span class="ei-name">Med-PaLM 2</span><span class="ei-role">T1D + psychiatric comorbidity</span></div></div>
+      <div class="ext-item llm"><span class="ei-icon">📚</span><div><span class="ei-name">Claude (Specialist)</span><span class="ei-role">Pre-conception risk · Wearable biomarkers</span></div></div>
+      <div class="prism-box">
+        <div class="prism-title">🔺 Diversity Prism — pre-conception readiness</div>
+        <div class="prism-row"><span class="prism-name">GPT</span><div class="prism-bar-wrap"><div class="prism-bar" style="width:80%;"></div></div><span class="prism-score">Δ0.80</span></div>
+        <div class="prism-row"><span class="prism-name">Med-PaLM</span><div class="prism-bar-wrap"><div class="prism-bar" style="width:76%;"></div></div><span class="prism-score">Δ0.76</span></div>
+        <div class="prism-row"><span class="prism-name">Claude</span><div class="prism-bar-wrap"><div class="prism-bar" style="width:52%;"></div></div><span class="prism-score">Δ0.52</span></div>
+      </div>
+    </div>
+
+    <div class="ext-section">
+      <div class="ext-section-title">Knowledge Bases</div>
+      <div class="ext-item db"><span class="ei-icon">📖</span><div><span class="ei-name">PubMed · ClinicalKey</span><span class="ei-role">HRV · luteal phase · SNRI literature</span></div></div>
+      <div class="ext-item db"><span class="ei-icon">💊</span><div><span class="ei-name">DrugBank · LactMed</span><span class="ei-role">SNRI pregnancy safety · Drug interactions</span></div></div>
+    </div>
+
+    <div class="ext-section">
+      <div class="ext-section-title">⌚ On-Device Wearable Signals</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:2px;">
+        <div style="background:var(--amb-bg);border:1px solid var(--amb-bd);border-radius:6px;padding:6px 9px;font-size:10.5px;color:var(--amber);font-family:'IBM Plex Mono',monospace;">💓 HRV continuous</div>
+        <div style="background:var(--amb-bg);border:1px solid var(--amb-bd);border-radius:6px;padding:6px 9px;font-size:10.5px;color:var(--amber);font-family:'IBM Plex Mono',monospace;">❤️ Resting HR</div>
+        <div style="background:var(--amb-bg);border:1px solid var(--amb-bd);border-radius:6px;padding:6px 9px;font-size:10.5px;color:var(--amber);font-family:'IBM Plex Mono',monospace;">🌙 Sleep stages</div>
+        <div style="background:var(--amb-bg);border:1px solid var(--amb-bd);border-radius:6px;padding:6px 9px;font-size:10.5px;color:var(--amber);font-family:'IBM Plex Mono',monospace;">🌡️ Skin temp</div>
+        <div style="background:var(--amb-bg);border:1px solid var(--amb-bd);border-radius:6px;padding:6px 9px;font-size:10.5px;color:var(--amber);font-family:'IBM Plex Mono',monospace;">🫁 Resp. rate</div>
+        <div style="background:var(--amb-bg);border:1px solid var(--amb-bd);border-radius:6px;padding:6px 9px;font-size:10.5px;color:var(--amber);font-family:'IBM Plex Mono',monospace;">🚶 Activity</div>
+      </div>
+      <div style="margin-top:8px;font-size:10.5px;color:var(--muted);font-style:italic;line-height:1.45;">All raw data remains on-device. Only de-identified statistical patterns are shared externally.</div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<!-- OUTCOME -->
+<div class="outcome">
+  <div class="oc-header">
+    <div class="oc-icon-big">✅</div>
+    <div>
+      <div class="oc-label">Patient Outcome — Proactively Delivered, Before Patient Knew to Ask</div>
+      <div class="oc-title">Hidden 6-month pattern surfaced · 3 specialists aligned · Pre-conception plan established · Ongoing wearable monitoring active</div>
+    </div>
+  </div>
+  <div class="oc-grid">
+    <div class="oc-card">
+      <div class="oc-card-icon">🔍</div>
+      <div class="oc-card-title">Pattern Discovered Proactively</div>
+      <div class="oc-card-desc">SMDT identified a 6-cycle HRV–mood–insulin pattern that no clinic visit, no single doctor, and no standard monitoring would have caught.</div>
+    </div>
+    <div class="oc-card">
+      <div class="oc-card-icon">🤱</div>
+      <div class="oc-card-title">Pre-Conception Risk Resolved</div>
+      <div class="oc-card-desc">Autonomic instability identified and addressed before conception — a risk that would have compounded dangerously in the first trimester if undetected.</div>
+    </div>
+    <div class="oc-card">
+      <div class="oc-card-icon">✉️</div>
+      <div class="oc-card-title">3-Specialist Plan Coordinated</div>
+      <div class="oc-card-desc">Psychiatry, endocrinology, and OB/GYN aligned around a single shared clinical picture — for the first time in this patient's care history.</div>
+    </div>
+    <div class="oc-card">
+      <div class="oc-card-icon">⌚</div>
+      <div class="oc-card-title">Consumer Device = Clinical Insight</div>
+      <div class="oc-card-desc">Apple Watch data alone — no CGM, no hospital equipment — was sufficient for SMDT to generate a clinically actionable, multi-specialist-validated finding.</div>
+    </div>
+  </div>
+</div>
+
+<!-- AIMS ROW -->
+<div class="aims-row">
+  <div class="aim-card a1">
+    <div class="aim-num">Aim 1 · Demonstrated</div>
+    <div class="aim-title">Longitudinal Cross-Domain Pattern Detection</div>
+    <div class="aim-novel">The core capability of Aim 1 in its purest form: SMDT's <strong>persistent, multi-modal, longitudinal memory</strong> assembled a pattern across wearable signals, psychiatric scores, and insulin logs that spanned 6 months and 3 clinical siloes. <strong>No single visit, no single physician, no single data stream could have produced this finding.</strong></div>
+  </div>
+  <div class="aim-card a2">
+    <div class="aim-num">Aim 2 · Demonstrated</div>
+    <div class="aim-title">Precision Privacy — Sharing Signals, Not Data</div>
+    <div class="aim-novel">Each physician received only the <strong>de-identified statistical pattern</strong> relevant to their domain — not raw wearable recordings, not psychiatric notes, not insulin pump logs. The agent's game-theoretic disclosure ensured <strong>maximum clinical utility with minimum re-identification surface</strong> per recipient.</div>
+  </div>
+  <div class="aim-card a3">
+    <div class="aim-num">Aim 3 · Demonstrated</div>
+    <div class="aim-title">Proactive Agency Without Patient Burden</div>
+    <div class="aim-novel">The patient did not file a complaint, navigate a referral, or coordinate a single appointment. SMDT <strong>initiated every interaction</strong> — literature verification, specialist alerts, diversity prism, joint briefing, and ongoing monitoring — autonomously. The Diversity Prism surfaced Claude's independent recommendation of HRV-guided conception timing, adding a genuinely novel clinical option.</div>
+  </div>
+</div>
+
+</div>
+</body>
+</html>
